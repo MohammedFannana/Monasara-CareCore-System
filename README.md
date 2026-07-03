@@ -4,7 +4,7 @@ An integrated digital ERP system automating operational and financial workflows 
 ### Skills:
 PHP - Laravel – MySQL – JavaScript – API – payment gateway - Data Export & Reporting - Multi-Tenant Design  
 
-### Deliverables
+### Deliverables:
 - A multi-tenant architecture ensuring secure data isolation for partner agencies.
 - Full automation of all financial workflows and operational processes.  
 - Customised dashboards and interactive portals for sponsors and partners.
