@@ -58,13 +58,13 @@
 
                             <tr>
                                  @php
-
-                                    $birthDate =  \Carbon\Carbon::parse($orphan->birth_date);
+                                    $birthDate = \Carbon\Carbon::parse($orphan->birth_date);
                                     $age = $birthDate->age;
 
                                     $startDate = \Carbon\Carbon::parse($orphan->activeSponsorships->sponsorship_date);
-                                    $endDate = $startDate->copy()->addMonths($orphan->activeSponsorships->duration);
+                                    $endDate = $startDate->copy()->addMonths((int) $orphan->activeSponsorships->duration);
                                 @endphp
+
 
                                 <td> <span class="value"> {{$orphan->id}}           </span> </td>
                                 <td><span class="value">  {{$orphan->name}}         </span></td>
@@ -100,7 +100,7 @@
                                         </a>
 
 
-                                        <a href="{{route('orphan.edit' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
+                                        <a href="{{route('association.orphan.edit' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
                                             <img src="{{asset('images/Edit Square.svg')}}" alt="">
                                             <span style="color: var(--text-color);">{{__(' تعديل البيانات')}}</span>
                                         </a>

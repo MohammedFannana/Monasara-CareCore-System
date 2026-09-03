@@ -134,6 +134,14 @@
                                             </div>
                                         </div>
 
+                                        {{-- nominating_authority --}}
+                                        @if (auth()->guard('researcher')->check())
+                                            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                                <x-form.input name="nominating_authority" value="{{$orphan->nominating_authority}}" type="text" id="nominating_authority" label=" جهة الترشيح " placeholder="ادخل جهة الترشيح" />
+                                            </div>
+                                        @endif
+
+
                                     </div>
 
 
@@ -470,9 +478,9 @@
                                         </div>
 
                                         {{-- guardian_email --}}
-                                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                        {{-- <div class="col-12 col-md-6 col-lg-4 mb-3">
                                             <x-form.input name="guardian_email"  value="{{$orphan->profile?->guardian_email}}" type="text" id="guardian_email" label=" البريد الالكتروني " placeholder="ادخل البريد الالكتروني  "/>
-                                        </div>
+                                        </div> --}}
                                     </div>
 
                                 </div>
@@ -699,90 +707,15 @@
 
                                 <div class="m-4">
 
-                                    <div class="table-responsive">
-                                        <table id="siblingsTable" class=" border-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>الاسم</th>
-                                                    <th>الجنس</th>
-                                                    <th>العمر</th>
-                                                    <th>الحالة الاجتماعية</th>
-                                                    <th>المهنة</th>
-                                                    <th>رقم الهوية</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @if($orphan?->siblings && $orphan->siblings->isNotEmpty())
-                                                    @foreach($orphan->siblings as $sibling)
-                                                        <tr>
-                                                            <td scope="row">{{ $loop->iteration }}</td>
-
-                                                          
-                                                            <td>
-                                                            <span  class="value">  {{$brother->brother_name}} </span>
-                                                            </td>
-
-                                                            <td><span  class="value">   {{$brother->brother_id_number}}  </span></td>
-
-                                                            <td><span  class="value">   {{$brother->brother_gender}}   </span> </td>
-
-                                                            <td> <span  class="value">  {{$brother->brother_birth_date}}   </span> </td>
-
-                                                            <td> <span  class="value">   {{$brother->brother_health_status}} </span> </td>
-
-                                                            @if($brother->brother_medical_report)
-                                                                <td>
-
-                                                                    <a href="{{route('orphan.show.image' , ['file' => encrypt($brother->brother_medical_report)])}}" type="button" class="text-decoration-none file-image p-2">
-                                                                        <img src="{{asset('assets/icon/album.png')}}" alt="" width="24px" height="24px" >
-                                                                        التقرير الطبي
-                                                                    </a>
-
-                                                                </td>
-                                                            @endif
-
-                                                        </tr>
-                                                    @endforeach
-                                                @else
-                                                    {{-- صف فارغ لإضافة أخ/أخت جديد --}}
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>
-                                                            <input name="brother_name[]" type="text" placeholder="أدخل اسم الأخ/الأخت" class="rounded form-control" />
-                                                        </td>
-                                                        <td>
-                                                            <select name="brother_gender[]" class="form-control rounded form-select">
-                                                                <option value="ذكر">ذكر</option>
-                                                                <option value="أنثى">أنثى</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <input name="brother_age[]" type="text" placeholder="أدخل العمر" class="rounded form-control" />
-                                                        </td>
-                                                        <td>
-                                                            <select name="brother_marital_status[]" class="form-control rounded form-select">
-                                                                <option value="أعزب">أعزب</option>
-                                                                <option value="متزوج">متزوج</option>
-                                                                <option value="أرمل">أرمل</option>
-                                                                <option value="مطلق">مطلق</option>
-                                                                <option value="مهجورة">مهجورة</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <input name="brother_jop[]" type="text" placeholder="المهنة" class="rounded form-control" />
-                                                        </td>
-                                                        <td>
-                                                            <input name="brother_id_number[]" type="text" placeholder="رقم الهوية" class="rounded form-control" />
-                                                        </td>
-                                                    </tr>
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <button class="submit-btn mt-4" type="button" onclick="addRow()">إضافة أخ / أخت آخر +</button>
-
+                                    {{--sibling_count  & sibling_under_sponsorship --}}
+                                    <div class="row mb-3">
+                                        {{-- sibling_count --}}
+                                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                            <x-form.input name="male_number"  type="number" id="male_number" label=" عدد الإخوة الذكور" placeholder="ادخل عدد الإخوة " value="{{$orphan->sibling?->male_number}}" />
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                            <x-form.input name="female_number"  type="number" id="female_number" label=" عدد الإخوة الإناث" placeholder="ادخل عدد الإخوات " value="{{$orphan->sibling?->female_number}}" />
+                                        </div>
                                 </div>
                             </div>
 

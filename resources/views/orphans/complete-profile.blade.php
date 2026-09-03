@@ -135,6 +135,11 @@
                                             </div>
                                         </div>
 
+                                        {{-- nominating_authority --}}
+                                        {{-- <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                            <x-form.input name="nominating_authority" type="text" id="nominating_authority" label=" جهة الترشيح " placeholder="ادخل جهة الترشيح" />
+                                        </div> --}}
+
                                     </div>
 
 
@@ -315,7 +320,7 @@
                                     </div>
 
                                     {{-- income --}}
-                                    <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                    {{-- <div class="col-12 col-md-6 col-lg-4 mb-3">
                                         <label class="mb-2 fw-bold"> مصادر دخل أسرة اليتيم </label>
                                         <div class="d-flex row align-items-center ">
                                             <div class="d-flex col-12 col-sm-6 gap-1 mb-1">
@@ -335,7 +340,7 @@
                                             @enderror
 
                                         </div>
-                                    </div>
+                                    </div> --}}
 
 
                                     {{-- <p style="color: var(--primary-color)" class="mb-3"> إذا كان  الدخل ثابت </p> --}}
@@ -345,14 +350,14 @@
                                         {{-- income_value --}}
 
                                         <!-- income_value -->
-                                        <div class="col-12 col-md-6 col-lg-4 mb-3 income">
+                                        {{-- <div class="col-12 col-md-6 col-lg-4 mb-3 income">
                                             <x-form.input name="income_value" type="text" label=" القيمة المالية للدخل " placeholder="ادخل القيمة المالية للدخل" />
                                         </div>
 
                                         <!-- income_source -->
                                         <div class="col-12 col-md-6 col-lg-4 mb-3 income">
                                             <x-form.input name="income_source" type="text" label=" مصدر الدخل " placeholder="ادخل مصدر الدخل" />
-                                        </div>
+                                        </div> --}}
 
 
                                         {{-- Father's death certificate --}}
@@ -462,9 +467,9 @@
                                         </div>
 
                                         {{-- guardian_email --}}
-                                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                        {{-- <div class="col-12 col-md-6 col-lg-4 mb-3">
                                             <x-form.input name="guardian_email"   type="text" id="guardian_email" label=" البريد الالكتروني " placeholder="ادخل البريد الالكتروني  "/>
-                                        </div>
+                                        </div> --}}
                                     </div>
 
                                 </div>
@@ -677,57 +682,16 @@
 
                             <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
 
-                                <div class="m-4">
+                                <div class="m-4 row">
 
-                                    <div class="table-responsive">
-                                        <table id="siblingsTable" class=" border-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>الاسم</th>
-                                                    <th>الجنس</th>
-                                                    <th>العمر</th>
-                                                    <th>الحالة الاجتماعية</th>
-                                                    <th>المهنة</th>
-                                                    <th>رقم الهوية</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>
-                                                        <input name="brother_name[]" type="text" placeholder="أدخل اسم الأخ/الأخت" class="rounded form-control" />
-                                                    </td>
-                                                    <td>
-                                                        <select name="brother_gender[]" class="form-control rounded form-select">
-                                                            <option value="ذكر">ذكر</option>
-                                                            <option value="أنثى">أنثى</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input name="brother_age[]" type="text" placeholder="أدخل العمر" class="rounded form-control" />
-                                                    </td>
-                                                    <td>
-                                                        <select name="brother_marital_status[]" class="form-control rounded form-select">
-                                                            <option value="أعزب">أعزب</option>
-                                                            <option value="متزوج">متزوج</option>
-                                                            <option value="أرمل">أرمل</option>
-                                                            <option value="مطلق">مطلق</option>
-                                                            <option value="مهجورة">مهجورة</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input name="brother_jop[]" type="text" placeholder="المهنة" class="rounded form-control" />
-                                                    </td>
-                                                    <td>
-                                                        <input name="brother_id_number[]" type="text" placeholder="رقم الهوية" class="rounded form-control" />
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <div class="col-12 col-md-5  mb-3">
+                                    <x-form.input name="male_number" min="0" type="number" id="male_number" label=" عدد الأخوة الذكور "  />
+                                </div>
 
-                                    <button class="submit-btn mt-4" type="button" onclick="addRow()">إضافة أخ / أخت آخر +</button>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <x-form.input name="female_number" min="0" type="number" id="female_number" label=" عدد الأخوة الإناث " />
+                                </div>
+
 
                                 </div>
                             </div>

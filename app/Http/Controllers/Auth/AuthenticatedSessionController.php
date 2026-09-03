@@ -28,7 +28,7 @@ class AuthenticatedSessionController extends Controller
                     'web' => redirect()->route('admin.association.index'),
                     'association' => redirect()->route('association.orphan.auditor'),
                     'researcher' => redirect()->route('researcher.orphan.index'),
-                    'sponsor' => redirect()->route('sponsor.orphan.waiting.index'),
+                    'sponsor' => redirect()->route('sponsor.orphan.sponsor.index'),
                 };
             }
         }
@@ -51,7 +51,18 @@ class AuthenticatedSessionController extends Controller
 
     {
 
+        
+
         $guard = $request->input('guard' , 'association');
+
+        if (empty($guard)) {
+            return back()
+                ->withErrors([
+                    'guard' => 'يرجى اختيار الفئة'
+                ])
+                ->withInput();
+        }
+
 
         $request->setGuard($guard)->authenticate();
 

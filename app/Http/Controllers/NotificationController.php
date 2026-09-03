@@ -9,51 +9,72 @@ use Illuminate\Support\Facades\Notification;
 class NotificationController extends Controller
 {
     public function OrphanNotification(){
-        $notifications = auth('orphan')->user()->notifications->filter(function ($notification) {
-            return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                || $notification->type === 'App\Notifications\SponsorshipEnded';
-        })->where('created_at', '>=',now()->subDays(8));
-        $this->makeReadNotification(auth('orphan')->user());
-        return view('notification' , compact('notifications'));
+        $user = auth('orphan')->user();
+        $notifications = $user->notifications()
+            ->whereIn('type', [
+                'App\\Notifications\\SponsorshipEndingSoon',
+                'App\\Notifications\\SponsorshipEnded',
+            ])
+            ->where('created_at', '>=', now()->subDays(8))
+            ->latest()
+            ->get();
 
+        $this->makeReadNotification($user);
+        return view('notification', compact('notifications'));
     }
 
     public function SponsorNotification(){
+        $user = auth('sponsor')->user();
+        $notifications = $user->notifications()
+            ->whereIn('type', [
+                'App\\Notifications\\SponsorshipEndingSoon',
+                'App\\Notifications\\SponsorshipEnded',
+            ])
+            ->where('created_at', '>=', now()->subDays(8))
+            ->latest()
+            ->get();
 
-        $notifications = auth('sponsor')->user()->notifications->filter(function ($notification) {
-            return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                || $notification->type === 'App\Notifications\SponsorshipEnded';
-        })->where('created_at'  , '>=' , now()->subDays(8));
-        $this->makeReadNotification(auth('sponsor')->user());
-        return view('notification' , compact('notifications'));
-
+        $this->makeReadNotification($user);
+        return view('notification', compact('notifications'));
     }
 
     public function AdminNotification(){
-        // dd(auth('orphan')->user()->unreadNotifications);
+        $user = auth('web')->user();
+        $notifications = $user->notifications()
+            ->whereIn('type', [
+                'App\\Notifications\\SponsorshipEndingSoon',
+                'App\\Notifications\\SponsorshipEnded',
+                'App\\Notifications\\NewSponsorNotification',
+            ])
+            ->where('created_at', '>=', now()->subDays(8))
+            ->latest()
+            ->get();
 
-        $notifications = auth('web')->user()->notifications->filter(function ($notification) {
-            return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                || $notification->type === 'App\Notifications\SponsorshipEnded';
-        })->where('created_at'  , '>=' , now()->subDays(8));
-        $this->makeReadNotification(auth('web')->user());
-        return view('notification' , compact('notifications'));
-
+        $this->makeReadNotification($user);
+        return view('notification', compact('notifications'));
     }
 
     public function AssociationNotification(){
-        $notifications = auth('association')->user()->notifications->filter(function ($notification) {
-        return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-            || $notification->type === 'App\Notifications\SponsorshipEnded';
-        })->where('created_at'  , '>=' , now()->subDays(8));
-        $this->makeReadNotification(auth('association')->user());
-        return view('notification' , compact('notifications'));
+        $user = auth('association')->user();
+        $notifications = $user->notifications()
+            ->whereIn('type', [
+                'App\\Notifications\\SponsorshipEndingSoon',
+                'App\\Notifications\\SponsorshipEnded',
+            ])
+            ->where('created_at', '>=', now()->subDays(8))
+            ->latest()
+            ->get();
 
+        $this->makeReadNotification($user);
+        return view('notification', compact('notifications'));
     }
 
     protected function makeReadNotification($user){
-        $notifications = $user->unreadNotifications;
-        $notifications->markAsRead();
+        if (! $user) {
+            return;
+        }
+
+        $user->unreadNotifications()->update(['read_at' => now()]);
         return;
     }
 }

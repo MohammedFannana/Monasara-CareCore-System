@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAssociationValidatedRequest;
+use App\Http\Requests\UpdateAssociationValidatedRequest;
 use App\Models\Association;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\Rule;
 
 
 class AssociationController extends Controller
@@ -36,20 +36,9 @@ class AssociationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAssociationValidatedRequest $request)
     {
-        $validated=$request->validate([
-            'name' => ['required', 'string'],
-            'address' => ['required', 'string'],
-            'responsible_person' =>['required' , 'string'],
-            'email' => ['required', 'email' , 'unique:associations,email'],
-            'fax' => ['required', 'string' , 'unique:associations,fax'],
-            'license_number' => ['nullable', 'integer' , 'unique:associations,license_number'],
-            'phone'=> ['required', 'string' , 'unique:associations,phone'],
-            'phone1' => ['required', 'string'],
-            'phone2' => ['required', 'string'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $validated = $request->validated();
 
         $validated['password'] = Hash::make($validated['password']);
         Association::create($validated);
@@ -76,20 +65,10 @@ class AssociationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Association $association)
+    public function update(UpdateAssociationValidatedRequest $request, Association $association)
     {
 
-        $validated=$request->validate([
-            'name' => ['sometimes', 'string'],
-            'address' => ['sometimes', 'string'],
-            'responsible_person' =>['sometimes' , 'string'],
-            'email' => ['sometimes', 'email' , Rule::unique('associations', 'email')->ignore($association->id)],
-            'fax' => ['sometimes', 'integer' , Rule::unique('associations', 'fax')->ignore($association->id)],
-            'license_number' => ['nullable', 'integer' , Rule::unique('associations', 'license_number')->ignore($association->id)],
-            'phone'=> ['sometimes', 'string' , Rule::unique('associations', 'phone')->ignore($association->id)],
-            'phone1' => ['sometimes', 'string'],
-            'phone2' => ['sometimes', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $association->update($validated);
         return redirect()->route('admin.association.index')->with('success' , 'تم تعديل بيانات الجمعية بنجاح');

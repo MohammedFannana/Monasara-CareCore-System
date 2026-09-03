@@ -27,7 +27,7 @@ class SponsorshipEndingSoon extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database' , 'mail'];
     }
 
     public function toDatabase($notifiable)
@@ -40,6 +40,19 @@ class SponsorshipEndingSoon extends Notification
             'status' => 'active',
         ];
     }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('تنبيه: قرب انتهاء كفالة')
+            ->line('🔔 تنبيه قرب انتهاء كفالة')
+            ->line($this->message)
+            ->line('رقم الكفالة: ' . $this->sponsorship->id)
+            ->line('اسم اليتيم: ' . $this->sponsorship->orphan->name)
+            ->action('عرض تفاصيل الكفالة', url('/sponsor/sponsorships/' . $this->sponsorship->id))
+            ->salutation('مع الشكر، ' . config('app.name'));
+    }
+
 
     /**
      * Get the mail representation of the notification.

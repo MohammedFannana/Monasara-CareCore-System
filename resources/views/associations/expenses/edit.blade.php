@@ -90,8 +90,28 @@
 
                         </div>
 
+                        <div class="col-12 col-md-7  mb-4">
 
-                        <div class="col-12 col-md-8 mb-4">
+                                @if ($expense->thank_letter_video)
+                                    <span class="value d-inline-block mb-1">
+                                        <a href="{{ $expense->thank_letter_video }}" target="_blank" type="button" class="text-decoration-none file-image p-2">
+                                            <img src="{{asset('images/video.png')}}" alt="" width="22px" height="22px" >
+                                            رسالة شكر فيديو
+                                        </a>
+                                    </span>
+                                @endif
+
+                                <label class="mb-2 fw-bold"> إرفاق رابط رسالة الشكر بالفيديو</label> <br>
+                                {{-- <label for="thank_letter_video" class="custom-file-upload text-center" style="width: 90%;color:#777a78;">
+                                    <img src="{{asset('images/video.png')}}" alt="" width="40px"> <br>
+                                    <div class="file-preview mt-2"></div>
+
+                                    اسحب الملف هنا أو اضغط لاختياره
+                                </label> --}}
+                                <x-form.input name="thank_letter_video"  type="url" id="thank_letter_video" class="w-100" placeholder="ادخل رابط رسالة الشكر بالفيديو"/>
+                        </div>
+
+                        {{-- <div class="col-12 col-md-8 mb-4">
 
                             <label class="mb-2 fw-bold"> إرفاق رسالة الشكر بالفيديو</label> <br>
 
@@ -105,12 +125,14 @@
                             @endif
 
 
+
+
                             <label for="thank_letter_video" class="custom-file-upload mt-2 text-center" style="width: 90%;color:#777a78;">
                                 <img src="{{asset('images/video.png')}}" alt="" width="40px"> <br>
                                 اسحب الملف هنا أو اضغط لاختياره
                             </label>
                             <x-form.input name="thank_letter_video" accept="video/*" class="hidden-file-style" type="file" id="thank_letter_video" style="display: none;"/>
-                        </div>
+                        </div> --}}
 
                         <div class="col-12 col-md-8 mb-4">
 

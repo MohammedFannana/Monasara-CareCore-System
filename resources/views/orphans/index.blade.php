@@ -78,6 +78,12 @@
                     <span class="value"> {{ $orphan->country }}</span>
                 </div>
 
+                @if ($orphan->nominating_authority)
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
+                        <span class="fw-bold">  جهة الترشيح : </span>
+                        <span class="value"> {{ $orphan->nominating_authority }}</span>
+                    </div>
+                @endif
 
 
             </div>
@@ -444,10 +450,10 @@
                         <hr>
 
                         {{-- guardian_email --}}
-                        <div class="col-12  mb-3">
+                        {{-- <div class="col-12  mb-3">
                             <span class="fw-bold"> البريد الالكتروني : </span>
                             <span class="value"> {{$orphan->profile->guardian_email}}  </span>
-                        </div>
+                        </div> --}}
 
                     </div>
 
@@ -498,7 +504,7 @@
                                     </a>
                                 </div>
 
-                            @else
+                            @elseif($orphan->profile->not_available_medical_report)
 
                                 <div class="col-12 col-lg-8 mb-3">
                                     <span class="fw-bold"> سبب عدم توفر التقرير الطبي   :</span>
@@ -587,9 +593,8 @@
 
     {{-- بيانات إخوة اليتيم --}}
 
-    <section class="family-information mt-5">
+    {{-- <section class="family-information mt-5">
 
-        {{-- section header component --}}
         <x-header title="  بيانات إخوة اليتيم " />
 
         <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
@@ -634,7 +639,42 @@
             </div>
         </div>
 
-    </section>
+    </section> --}}
+
+    @isset($orphan->sibling)
+        <section class="family-information mt-5">
+
+            {{-- section header component --}}
+            <x-header title="  بيانات إخوة اليتيم " />
+
+            <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
+
+                <div class="m-4">
+
+                    <div class="row mb-3">
+
+                    @if($orphan->sibling && $orphan->sibling->male_number)
+                        <div class="col-12 col-md-6  mb-3">
+                            <span class="fw-bold"> عدد الأخوة الذكور </span>
+                            <span class="value"> {{$orphan->sibling->male_number}}  </span>
+                        </div>
+                        @endif
+
+                        @if($orphan->sibling && $orphan->sibling->female_number)
+
+                            <div class="col-12 col-md-6  mb-3">
+                                <span class="fw-bold"> عدد الأخوة الإناث </span>
+                                <span class="value"> {{$orphan->sibling->female_number}}  </span>
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+    @endisset
+
 
     {{-- How to receive sponsorship--}}
     <section class="sponsorship-information mt-5">
@@ -762,7 +802,7 @@
                 }
             }
 
-            // ✅ شغلها مباشرة عند تحميل الصفحة
+            //  شغلها مباشرة عند تحميل الصفحة
             window.addEventListener('DOMContentLoaded', toggleReceiveDivs);
         </script>
 

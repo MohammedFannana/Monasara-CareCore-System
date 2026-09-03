@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command(UpdateSponsorshipStatus::class)->everyMinute();
+Schedule::command(UpdateSponsorshipStatus::class)->everyFiveMinutes();
 Schedule::command('model:prune')->monthly('03:00');
 
 

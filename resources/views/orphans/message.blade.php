@@ -38,7 +38,7 @@
 
     </div>
 
-    @if (auth()->user()->role == 'sponsored')
+    @if (auth('orphan')->check() && auth('orphan')->user()->isSponsored())
 
         <div class="message mt-4 p-4">
 

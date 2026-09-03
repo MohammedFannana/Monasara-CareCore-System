@@ -31,7 +31,7 @@ class SponsorshipEnded extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database' , 'mail'];
     }
 
     /**
@@ -48,12 +48,26 @@ class SponsorshipEnded extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'title' => 'انتهاء كفالة',
+            'title' => 'تذكير بدفع الكفالة :',
             'message' => $this->message,
             'sponsorship_id' => $this->sponsorship->id,
             'orphan_id' => $this->sponsorship->orphan->id,
             'status' => 'active',
         ];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('تذكير بدفع الكفالة')
+            ->line($this->message)
+            ->line('رقم الكفالة: ' . $this->sponsorship->id)
+            ->line('اسم اليتيم: ' . $this->sponsorship->orphan->name)
+            ->action(
+                'عرض تفاصيل الكفالة',
+                url('/sponsor/sponsorships/' . $this->sponsorship->id)
+            )
+            ->salutation('مع الشكر، ' . config('app.name'));
     }
 
     /**

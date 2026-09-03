@@ -16,12 +16,12 @@ use Illuminate\Support\Facades\Route;
 
     Route::get('admin/login', [AuthenticatedSessionController::class, 'createAdmin'])
     ->name('admin.login');
-    
-Route::middleware('guest:web,orphan,sponsor,association,researcher')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+Route::middleware('guest:web,orphan,sponsor,association,researcher')->group(function () {
+    Route::get('sponsor/register', [RegisteredUserController::class, 'create'])
+        ->name('sponsor.register');
+
+    Route::post('sponsor/register', [RegisteredUserController::class, 'store']);
 
 
 

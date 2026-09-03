@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Association;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreExpenseValidatedRequest;
+use App\Http\Requests\UpdateExpenseValidatedRequest;
 use App\Models\Expense;
 use App\Models\Orphan;
 use Illuminate\Http\Request;
@@ -17,12 +19,20 @@ class ExpenseController extends Controller
     {
         $association = auth('association')->user();
 
+        $expenses = Expense::whereHas('orphan', function ($query) use ($association, $request) {
+                // أولاً: التأكد من أن اليتيم يتبع لهذه الجمعية
+                $query->where('association_id', $association->id);
 
-        // orderBy('created_at', 'desc')
-        $expenses = Expense::whereHas('orphan', function ($query) use ($association) {
-            $query->where('association_id', $association->id);
-        })->latest()->paginate(6);
-        return view('associations.expenses.index' , compact('expenses'));
+                // ثانياً: إذا كان هناك بحث، ابحث في اسم اليتيم
+                if ($request->filled('search')) {
+                    $query->where('name', 'LIKE', "%{$request->search}%");
+                }
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString(); // مهم جداً للحفاظ على كلمة البحث عند التنقل بين الصفحات
+
+        return view('associations.expenses.index', compact('expenses'));
     }
 
     /**
@@ -30,9 +40,21 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        $orphans = Orphan::where('association_id' , auth('association')->id())
-        ->where('role', 'sponsored')
-        ->get(['id' , 'name' , 'id_number']);
+
+        if (auth('association')->check()) {
+
+            $orphans = Orphan::where('association_id', auth('association')->id())
+                ->sponsored()
+                ->get(['id', 'name', 'id_number']);
+
+        } elseif (auth('researcher')->check()) {
+
+            $orphans = Orphan::where('association_id', auth('researcher')->user()->association_id)
+                ->sponsored()
+                ->get(['id', 'name', 'id_number']);
+
+        }
+
 
         return view('associations.expenses.create' , compact('orphans'));
     }
@@ -40,17 +62,11 @@ class ExpenseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreExpenseValidatedRequest $request)
     {
-        $validated = $request->validate([
-            'orphan_id' => ['required' , 'exists:orphans,id'],
-            'duration' => ['required' , 'numeric' , 'min:1'],
-            'bail_amount' => ['required' , 'numeric' , 'min:1'],
-            'payment_received' => ['required' , 'image' , 'dimensions:min_width=100,min_height=100','max:1048576'],
-            'delivery_bail' => ['required' , 'image' , 'dimensions:min_width=100,min_height=100','max:1048576'],
-            'thank_letter_video' => ['nullable' , 'file' ,'max:51200'],
-            'thank_letter_audio' => ['nullable' , 'file'],
-        ]);
+
+
+        $validated = $request->validated();
         $validated['status'] = "pending ";
 
         $orphan_name = $orphan_name = Orphan::find($validated['orphan_id'])?->name;
@@ -59,7 +75,6 @@ class ExpenseController extends Controller
          $fields = [
             'payment_received',
             'delivery_bail',
-            'thank_letter_video',
             'thank_letter_audio'
         ];
 
@@ -97,12 +112,12 @@ class ExpenseController extends Controller
         }
 
         $orphans = Orphan::where('association_id' , auth('association')->id())
-        ->where('role', 'sponsored')
+        ->sponsored()
         ->get(['id' , 'name' , 'id_number']);
         return view('associations.expenses.edit' , compact(['expense' , 'orphans']));
     }
 
-    public function update(Request $request , Expense $expense){
+    public function update(UpdateExpenseValidatedRequest $request , Expense $expense){
 
          $associationId = auth('association')->id();
 
@@ -115,14 +130,7 @@ class ExpenseController extends Controller
         }
 
         // التحقق من صحة البيانات
-        $validated = $request->validate([
-            'duration' => ['sometimes' , 'numeric' , 'min:1'],
-            'bail_amount' => ['sometimes' , 'numeric' , 'min:1'],
-            'payment_received' => ['sometimes' , 'image' , 'dimensions:min_width=100,min_height=100','max:1048576'],
-            'delivery_bail' => ['sometimes' , 'image' , 'dimensions:min_width=100,min_height=100','max:1048576'],
-            'thank_letter_video' => ['nullable' , 'file' ,'max:51200'],
-            'thank_letter_audio' => ['nullable' , 'file'],
-        ]);
+        $validated = $request->validated();
 
         $validated['orphan_id'] = $expense->orphan_id;
 
@@ -133,7 +141,6 @@ class ExpenseController extends Controller
         $fields = [
             'payment_received',
             'delivery_bail',
-            'thank_letter_video',
             'thank_letter_audio'
         ];
 

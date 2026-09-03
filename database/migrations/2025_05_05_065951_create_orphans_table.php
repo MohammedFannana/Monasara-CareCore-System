@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('orphan_status' , ['يتيم الأم' , 'يتيم الأب' , 'يتيم الأبوين'])->default('يتيم الأب');
             $table->enum('gender' , ['ذكر' , 'أنثى']);
+            $table->string('nominating_authority')->nullable();
 
             $table->string('mother_name');
             $table->date('death_mother_date')->nullable();

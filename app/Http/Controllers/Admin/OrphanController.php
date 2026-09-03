@@ -14,20 +14,20 @@ class OrphanController extends Controller
      */
     public function index(Request $request)
     {
-        $orphans = Orphan::whereIn('role', ['sponsored', 'waiting', 'certified'])
+        $orphans = Orphan::whereIn('role', [\App\Enums\OrphanRole::SPONSORED->value, \App\Enums\OrphanRole::WAITING->value, \App\Enums\OrphanRole::CERTIFIED->value])
         ->when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
-        })->with('association')->paginate(6);
+        })->with(['association', 'latestSponsorship'])->paginate(15);
 
         return view('admins.orphans.index' , compact('orphans'));
     }
 
      public function CertifiedOrphan(Request $request){
 
-        $orphans = Orphan::where('role' , 'certified')->
+        $orphans = Orphan::certified()->
         when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
-        })->with('association')->paginate(6);
+        })->with(['association', 'latestSponsorship'])->paginate(6);
 
         return view('admins.orphans.certified-index' , compact('orphans'));
 
@@ -35,21 +35,32 @@ class OrphanController extends Controller
 
     public function SponsoredOrphan(Request $request){
 
-        $orphans = Orphan::where('role' , 'sponsored')->
+        $orphans = Orphan::sponsored()->
         when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
-        })->with('association')->paginate(6);
+        })->with(['association', 'latestSponsorship'])->paginate(6);
 
         return view('admins.orphans.sponsored-index' , compact('orphans'));
+    }
 
+    public function ArchivedOrphan(Request $request)
+    {
+        $orphans = Orphan::archived()
+            ->when($request->search, function ($builder, $value) {
+                $builder->where('name', 'LIKE', "%{$value}%");
+            })
+            ->with('association')
+            ->paginate(15);
+
+        return view('admins.orphans.archived-index', compact('orphans'));
     }
 
     public function UnsponsoredOrphan(Request $request){
 
-        $orphans = Orphan::where('role' , 'waiting')->
+        $orphans = Orphan::waiting()->
         when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
-        })->with('association')->paginate(6);
+        })->with(['association', 'latestSponsorship'])->paginate(6);
 
         return view('admins.orphans.unsponsored-index' , compact('orphans'));
 
@@ -67,7 +78,7 @@ class OrphanController extends Controller
         }
 
         // تحديث جماعي بدلاً من foreach إن أمكن
-        Orphan::whereIn('id', $orphanIds)->update(['role' => 'waiting']);
+        Orphan::whereIn('id', $orphanIds)->update(['role' => \App\Enums\OrphanRole::WAITING->value]);
 
         return redirect()->route('admin.orphan.UnsponsoredOrphan')->with('success', 'تم تحديث حالة الأيتام بنجاح');
 
@@ -119,7 +130,7 @@ class OrphanController extends Controller
     public function show(Orphan $orphan)
     {
 
-        $orphan = $orphan->load(['profile' , 'siblings']);
+        $orphan = $orphan->load(['profile' , 'sibling']);
         return view('admins.orphans.view' , compact('orphan'));
 
     }
@@ -130,7 +141,8 @@ class OrphanController extends Controller
     public function edit(Orphan $orphan)
     {
         $orphan = $orphan->load('profile');
-        return view('admins.orphans.edit' , compact('orphan'));
+        $associations = Association::pluck('name', 'id')->toArray();;
+        return view('admins.orphans.edit' , compact('orphan' , 'associations'));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OrphanMessageValidatedRequest;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -15,12 +16,11 @@ class MessageController extends Controller
         return view('orphans.message');
     }
 
-    public function amalSendMessage(Request $request){
+    public function amalSendMessage(OrphanMessageValidatedRequest $request){
 
-        $request->validate([
-            'message' => 'required|string',
-        ]);
+        $request->validated();
 
+        $orphan = auth('orphan')->user();
 
         // إرسال إشعار للمستخدم نفسه
         $admin = User::first();
@@ -32,10 +32,10 @@ class MessageController extends Controller
             'notifiable_id' => $admin->id,            // أو $sponsor->id
             'data' => [
                 'message' => $request->message,
-                'orphan_name' => auth('orphan')->user()->name,
+                'orphan_name' => $orphan->name,
 
             ],
-            'orphan_id' => auth('orphan')->user()->id,
+            'orphan_id' => $orphan->id,
             'status' => 'inactive',   // أو 'inactive'
         ]);
 
@@ -45,18 +45,16 @@ class MessageController extends Controller
 
     }
 
-    public function SponsorSendMessage(Request $request){
+    public function SponsorSendMessage(OrphanMessageValidatedRequest $request){
 
+        $request->validated();
 
-        $request->validate([
-            'message' => 'required|string',
-        ]);
+        $orphan = auth('orphan')->user()->loadMissing('activeSponsorships.sponsor');
+        $sponsor = $orphan->activeSponsorships?->sponsor;
 
-
-        // dd(auth('orphan')->user());
-        // إرسال إشعار للمستخدم نفسه
-        $sponsor = auth('orphan')->user()->activeSponsorships->sponsor;
-        // dd($sponsor);
+        if (! $sponsor) {
+            return redirect()->back()->with('danger', 'لا يوجد كافل نشط لهذا اليتيم.');
+        }
 
         // $sponsor->notify(new OrphanMessage($data));
         DatabaseNotification::create([
@@ -66,9 +64,9 @@ class MessageController extends Controller
             'notifiable_id' => $sponsor->id,            // أو $sponsor->id
             'data' => [
                 'message' => $request->message,
-                'orphan_name' => auth('orphan')->user()->name,
+                'orphan_name' => $orphan->name,
             ],
-            'orphan_id' => auth('orphan')->user()->id,
+            'orphan_id' => $orphan->id,
             'status' => 'inactive',   // أو 'inactive'
         ]);
 

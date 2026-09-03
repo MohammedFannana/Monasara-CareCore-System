@@ -28,7 +28,7 @@
 
             <div class="d-flex justify-content-between mb-3">
                 <p class="fs-5 fw-semibold"> قائمة الأيتام الذين تم ترشحهم </p>
-                <a href="{{route('orphan.create')}}" class="submit-btn text-decoration-none"> إضافة يتيم </a>
+                <a href="{{route('association.orphan.create')}}" class="submit-btn text-decoration-none"> إضافة يتيم </a>
             </div>
 
             <div class="table-responsive">

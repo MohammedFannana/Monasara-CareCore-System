@@ -30,7 +30,14 @@
                 <div class="col-sm-12 col-md-8 col-lg-9 ps-2">
                     <div class="mb-3 d-flex justify-content-between align-items-center">
                         <p class="fw-bold fs-5"> {{ collect(explode(' ', $orphan->name))->take(2)->implode(' ') }} </p>
-                        <a href="{{route('sponsor.orphan.create' , $orphan->id)}}" class="text-decoration-none submit-btn" style="padding: 5px 15px !important"> اكفل الآن </a>
+                        <form action="{{ route('sponsor.orphan.create') }}" method="POST" class="text-right">
+                            @csrf
+                            <input type="hidden" name="orphans_ids[]" value="{{ $orphan->id }}">
+                            <button type="submit" class="btn submit-btn m-0 p-0 text-decoration-none mb-1" style="padding: 5px 15px !important">
+                                <img src="{{asset('images/Edit Square.svg')}}" alt="">
+                                {{ __(' اكفل الآن ') }}
+                            </button>
+                        </form>
                     </div>
 
                     <div class="row">
@@ -62,6 +69,13 @@
                             <span class="fw-bold">   الجنس: </span>
                             <span class="value"> {{ $orphan->gender }}</span>
                         </div>
+
+                        @if ($orphan->nominating_authority)
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
+                                <span class="fw-bold">  جهة الترشيح : </span>
+                                <span class="value"> {{ $orphan->nominating_authority }}</span>
+                            </div>
+                        @endif
 
 
 

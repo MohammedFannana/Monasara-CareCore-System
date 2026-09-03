@@ -69,6 +69,7 @@
                             <th> إيصال الدفع </th>
                             {{-- <th>  رسالة شكر  </th> --}}
                             <th> صورة تسليم الكفالة </th>
+                            <th>  رسالة شكر  </th>
                         </tr>
                     </thead>
 
@@ -108,6 +109,45 @@
                                         </a>
                                     </span>
                                 </td>
+
+                                @if ($expense->thank_letter_audio || $expense->thank_letter_video)
+
+                                    <td>
+
+                                        @if ($expense->thank_letter_video)
+                                            <span class="value d-inline-block mb-1">
+                                                <a href="{{ $expense->thank_letter_video }}" target="_blank" type="button" class="text-decoration-none file-image p-2">
+                                                    <img src="{{asset('images/video.png')}}" alt="" width="22px" height="22px" >
+                                                    رسالة شكر فيديو
+                                                </a>
+                                            </span>
+                                        @endif
+
+
+                                        {{-- @if ($expense->thank_letter_video)
+                                            <span class="value d-inline-block mb-1">
+                                                <a href="{{ route('orphan.primary.video', ['url' => urlencode($expense->thank_letter_video)]) }}"
+                                                class="text-decoration-none file-image p-2">
+
+                                                    <img src="{{ asset('images/video.png') }}" alt="" width="22" height="22">
+                                                    رسالة شكر فيديو
+                                                </a>
+                                            </span>
+                                        @endif --}}
+
+                                        @if ($expense->thank_letter_audio)
+                                            <span class="value">
+                                                <a href="{{route('orphan.primary.audio' , ['file' => encrypt($expense->thank_letter_audio)])}}" type="button" class="text-decoration-none file-image p-2">
+                                                    <img src="{{asset('images/audio.png')}}" alt="" width="22px" height="22px" >
+                                                    رسالة شكر صوتية
+                                                </a>
+                                            </span>
+                                        @endif
+
+
+
+                                    </td>
+                                @endif
 
 
 

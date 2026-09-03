@@ -19,7 +19,7 @@ class OrphanController extends Controller
 
         $orphans = Orphan::with('profile')
         ->where('association_id' , $association_id)
-        ->where('role' , 'candidate')
+        ->candidate()
         ->whereNull('guardian_name')
         ->where(function ($query) {
         $query->whereDoesntHave('profile') // لا يملك profile
@@ -40,7 +40,7 @@ class OrphanController extends Controller
         $association_id =auth('association')->user()->id;
 
         $orphans = Orphan::with('profile')->where('association_id' , $association_id)
-        ->where('role' , 'candidate')
+        ->candidate()
         ->whereNotNull('guardian_name')
         ->whereHas('profile', function ($query) {
             $query->whereNotNull('guardian_whats_phone');
@@ -54,15 +54,13 @@ class OrphanController extends Controller
     }
 
 
-
-
     public function auditorOrphan(Request $request)
     {
         $association_id =auth('association')->user()->id;
                   // dd($associaton_id);
 
         $orphans = Orphan::where('association_id' , $association_id)
-        ->where('role' , 'auditor')
+        ->auditor()
         ->when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
         })->paginate(10);
@@ -78,7 +76,7 @@ class OrphanController extends Controller
                   // dd($associaton_id);
 
         $orphans = Orphan::where('association_id' , $association_id)
-        ->where('role' , 'certified')
+        ->certified()
         ->when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
         })->paginate(10);
@@ -94,7 +92,7 @@ class OrphanController extends Controller
                   // dd($associaton_id);
 
         $orphans = Orphan::where('association_id' , $association_id)
-        ->where('role' , 'waiting')
+        ->waiting()
         ->when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
         })->paginate(10);
@@ -109,16 +107,30 @@ class OrphanController extends Controller
         $association_id =auth('association')->user()->id;
                   // dd($associaton_id);
 
-        $orphans = Orphan::where('association_id' , $association_id)
-        ->where('role' , 'sponsored')
-        ->when($request->search, function ($builder, $value) { //from search input
-            $builder->where('name', 'LIKE', "%{$value}%");
-        })
-         ->with('activeSponsorships')
-        ->paginate(10);
+        $orphans = Orphan::where('association_id', $association_id)
+            ->sponsored()
+            ->when($request->search, function ($builder, $value) { //from search input
+                $builder->where('name', 'LIKE', "%{$value}%");
+            })
+            ->with(['sponsorships', 'activeSponsorships.sponsor'])
+            ->paginate(15);
 
 
         return view('associations.orphans.sponsored-orphan' , compact('orphans'));
+    }
+
+    public function archivedOrphan(Request $request)
+    {
+        $associationId = auth('association')->user()->id;
+
+        $orphans = Orphan::where('association_id', $associationId)
+            ->archived()
+            ->when($request->search, function ($builder, $value) {
+                $builder->where('name', 'LIKE', "%{$value}%");
+            })
+            ->paginate(15);
+
+        return view('associations.orphans.archived-orphan', compact('orphans'));
     }
 
 
@@ -126,7 +138,7 @@ class OrphanController extends Controller
 
         $association = auth('association')->user();
 
-        if ($orphan->association_id  !== $association->id) {
+        if ($orphan->association_id  != $association->id) {
             abort(403, 'غير مسموح لك بالوصول لهذا الصفحة');
         }
 
@@ -154,14 +166,13 @@ class OrphanController extends Controller
      */
     public function show(Orphan $orphan)
     {
-
         $association = auth('association')->user();
 
-        if ($orphan->association_id !== $association->id) {
+        if ($orphan->association_id != $association->id) {
             abort(403, 'غير مسموح لك بالوصول لهذا الصفحة');
         }
 
-        $orphan = $orphan->load(['profile', 'firstReview' , 'siblings']);
+        $orphan = $orphan->load(['profile', 'firstReview' , 'sibling']);
 
         return view('associations.orphans.view-candidate' ,compact('orphan'));
     }

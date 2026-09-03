@@ -28,7 +28,9 @@
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <p class="fs-5 fw-semibold custom-sm-style mb-1" style="color: var(--primary-color)"> قائمة الجمعيات في النظام </p>
 
+                    @can('show-admin')
                     <a href="{{route('admin.association.create')}}" class="submit-btn text-decoration-none ">+ إضافة جمعية </a>
+                    @endcan
                 </div>
 
                 <form action="{{route('admin.association.index')}}" method="GET" class="search custom-sm-style w-100">
@@ -56,7 +58,9 @@
                             <th>العنوان</th>
                             <th>الشخص المسؤول</th>
                             <th>  الايميل </th>
+                            @can('show-admin')
                             <th> الاجراءات </th>
+                            @endcan
                         </tr>
                     </thead>
 
@@ -70,6 +74,8 @@
                                 <td><span class="value">  {{$association->address}}               </span></td>
                                 <td><span class="value">  {{$association->responsible_person}}    </span></td>
                                 <td><span class="value">  {{$association->email}}                 </span></td>
+
+                                @can('show-admin')
                                 <td style="position: relative;">
 
                                     <img class="show-action" src="{{asset('images/Group 8.svg')}}" alt="">
@@ -99,6 +105,7 @@
                                     </div>
 
                                 </td>
+                                @endcan
                             </tr>
 
                         @empty

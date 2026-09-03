@@ -9,6 +9,8 @@
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
+        <input type="hidden" name="guard" value="{{ request('type') }}">
+
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('البريد الالكتروني')" />

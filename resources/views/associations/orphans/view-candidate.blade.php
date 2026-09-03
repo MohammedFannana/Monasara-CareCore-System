@@ -72,6 +72,13 @@
                     <span class="value"> {{ $orphan->country }}</span>
                 </div>
 
+                @if ($orphan->nominating_authority)
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
+                        <span class="fw-bold">  جهة الترشيح : </span>
+                        <span class="value"> {{ $orphan->nominating_authority }}</span>
+                    </div>
+                @endif
+
                 {{-- <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
                     <span class="fw-bold">  حالة الكفالة : </span>
                     <span class="value"> مكفول </span>
@@ -177,7 +184,7 @@
 
                             @endif
 
-                            <hr>
+
 
                         </div>
                     </div>
@@ -253,7 +260,7 @@
 
                             </div>
 
-                            <hr>
+
 
                         </div>
 
@@ -335,24 +342,25 @@
 
                 @endif
 
-                {{-- income --}}
+                {{-- income
                 <div class="col-12 col-md-6 col-lg-4 mb-3">
                     <span class="fw-bold"> مصادر دخل أسرة اليتيم :</span>
                     <span class="value"> {{$orphan->income}} </span>
                 </div>
 
 
-                {{-- income_value --}}
+
                 <div class="col-12 col-md-6 col-lg-4 mb-3">
                     <span class="fw-bold"> القيمة المالية للدخل : </span>
                     <span class="value"> {{$orphan->income_value}} </span>
                </div>
 
-                {{-- income_source --}}
+
                 <div class="col-12 col-md-6 col-lg-4 mb-3">
                     <span class="fw-bold"> مصدر الدخل  :</span>
                     <span class="value"> {{$orphan->income_source}} </span>
                 </div>
+                --}}
 
 
             </div>
@@ -436,10 +444,10 @@
                         <hr>
 
                         {{-- guardian_email --}}
-                        <div class="col-12  mb-3">
+                        {{--<div class="col-12  mb-3">
                             <span class="fw-bold"> البريد الالكتروني : </span>
                             <span class="value"> {{$orphan->profile->guardian_email}}  </span>
-                        </div>
+                        </div>--}}
 
                     </div>
 
@@ -531,10 +539,12 @@
                             <hr>
 
                             {{-- average --}}
-                            <div class="col-12 col-lg-6  mb-3">
-                                <span class="fw-bold"> المعدل : </span>
-                                <span class="value"> {{$orphan->profile->average}}  </span>
-                            </div>
+                            @if($orphan->profile->average)
+                                <div class="col-12 col-lg-6  mb-3">
+                                    <span class="fw-bold"> المعدل : </span>
+                                    <span class="value"> {{$orphan->profile->average}}  </span>
+                                </div>
+                            @endif
 
                             @if ($orphan->profile->educational_certificate)
 
@@ -546,7 +556,7 @@
                                     </a>
                                 </div>
 
-                            @else
+                            @elseif($orphan->profile->not_available_educational_certificate)
 
                                 <div class="col-12 col-md-6 col-lg-3 mb-3">
                                     <span class="fw-bold"> سبب عدم توفر الشهادة  :</span>
@@ -579,46 +589,25 @@
 
         <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
 
-            <div class="m-4">
+           <div class="m-4">
 
-                <div class="table-responsive">
-                    <table  class=" border-0 w-100 text-center" style="border-collapse: collapse;">
+                <div class="row mb-3">
 
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>الاسم</th>
-                                <th>الجنس</th>
-                                <th>العمر</th>
-                                <th>الحالة الاجتماعية</th>
-                                <th>المهنة</th>
-                                <th>رقم الهوية</th>
-                            </tr>
-                        </thead>
+                    @if($orphan->sibling && $orphan->sibling->male_number)
+                        <div class="col-12 col-md-6  mb-3">
+                            <span class="fw-bold"> عدد الأخوة الذكور  :</span>
+                            <span class="value"> {{$orphan->sibling->male_number}}  </span>
+                        </div>
+                    @endif
 
-                        <tbody>
+                    @if($orphan->sibling && $orphan->sibling->female_number)
 
-
-
-                            @foreach ($orphan->siblings as $sibling)
-
-                                <tr>
-                                    <td> <span class="value"> {{$sibling->id }}</span> </td>
-                                    <td><span class="value">{{ $sibling->brother_name}}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_gender}}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_age}}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_marital_status }}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_jop }}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_id_number }}</span></td>
-                                </tr>
-
-                            @endforeach
-
-
-                        </tbody>
-                    </table>
+                        <div class="col-12 col-md-6  mb-3">
+                            <span class="fw-bold"> عدد الأخوة الإناث  :</span>
+                            <span class="value"> {{$orphan->sibling->female_number}}  </span>
+                        </div>
+                    @endif
                 </div>
-
 
             </div>
         </div>

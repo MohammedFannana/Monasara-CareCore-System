@@ -155,15 +155,6 @@
             @endif
 
 
-            @if($orphan->id_number)
-                <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
-                    <p style=" width: 100%;margin-right:3px" class="cell font"> رقم الهوية </p>
-                    <p style="width: 90%;" class="cell border">
-                        {{ $orphan->id_number }}
-                    </p>
-                </div>
-            @endif
-
 
             @if($orphan->orphan_status)
                 <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
@@ -206,6 +197,15 @@
                     <p style=" width: 100%;margin-right:3px" class="cell font"> اسم الوصي </p>
                     <p style="width: 90%;" class="cell border">
                         {{ $orphan->guardian_name }}
+                    </p>
+                </div>
+            @endif
+
+            @if($orphan->profile && $orphan->profile->guardian_id_number)
+                <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                    <p style=" width: 100%;margin-right:3px" class="cell font">  رقم هوية الوصي </p>
+                    <p style="width: 90%;" class="cell border">
+                        {{ $orphan->profile->guardian_id_number }}
                     </p>
                 </div>
             @endif
