@@ -74,6 +74,7 @@
                                         <div class="mt-3">
                                             <label for="status" class="form-label" class="mb-2"> حالة الكفالة  </label>
                                             <select name="status" id="status" class="form-select">
+                                                <option value="all">الكل</option>
                                                 <option value="active"> نشطة </option>
                                                 <option value="finished"> منتهية </option>
                                             </select>
@@ -97,7 +98,8 @@
 
 
                 @if ($reports->isNotEmpty())
-                    <form action="{{route('admin.report.sponsor')}}" method="GET" class="search custom-sm-style w-100">
+                {{-- ** --}}
+                    <form action="{{route('admin.report.sponsorship')}}" method="GET" class="search custom-sm-style w-100">
 
                         @csrf
                         <div class="input-group flex-nowrap mb-4">

@@ -94,6 +94,28 @@
             </div>
 
             <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> اسم الوصي </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $sponsorship->orphan->guardian_name}}
+                </p>
+            </div>
+
+
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> رقم هوية الوصي </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $sponsorship?->orphan?->profile->guardian_id_number}}
+                </p>
+            </div>
+
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> رقم جوال الوصي </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $sponsorship?->orphan?->profile->guardian_first_phone}}
+                </p>
+            </div>
+
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
                 <p style=" width: 100%;margin-right:3px" class="cell font"> اسم الكافل </p>
                 <p style="width: 90%;" class="cell border">
                     {{ $sponsorship->sponsor->name}}

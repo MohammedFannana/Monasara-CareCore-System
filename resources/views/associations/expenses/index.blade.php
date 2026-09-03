@@ -114,12 +114,24 @@
 
                                         @if ($expense->thank_letter_video)
                                             <span class="value d-inline-block mb-1">
-                                                <a href="{{route('orphan.primary.video' , ['file' => encrypt($expense->thank_letter_video)])}}" type="button" class="text-decoration-none file-image p-2">
+                                                <a href="{{ $expense->thank_letter_video }}" target="_blank" type="button" class="text-decoration-none file-image p-2">
                                                     <img src="{{asset('images/video.png')}}" alt="" width="22px" height="22px" >
                                                     رسالة شكر فيديو
                                                 </a>
                                             </span>
                                         @endif
+
+
+                                        {{-- @if ($expense->thank_letter_video)
+                                            <span class="value d-inline-block mb-1">
+                                                <a href="{{ route('orphan.primary.video', ['url' => urlencode($expense->thank_letter_video)]) }}"
+                                                class="text-decoration-none file-image p-2">
+
+                                                    <img src="{{ asset('images/video.png') }}" alt="" width="22" height="22">
+                                                    رسالة شكر فيديو
+                                                </a>
+                                            </span>
+                                        @endif --}}
 
                                         @if ($expense->thank_letter_audio)
                                             <span class="value">
@@ -134,6 +146,7 @@
 
                                     </td>
                                 @endif
+                                
                                 <td>
                                     <span class="value">
                                         <a href="{{route('orphan.primary.image' , ['file' => encrypt($expense->delivery_bail)])}}" type="button" class="text-decoration-none file-image p-2">
@@ -144,6 +157,7 @@
                                 </td>
 
                                 <td class="d-flex gap-2">
+
 
                                     <div>
                                         <button  class="submit border-0 p-0 bg-transparent d-flex btn-delete" style="gap:7px">
@@ -161,6 +175,9 @@
                                     <a href="{{route('association.expenses.edit' , $expense->id)}}">
                                         <img src="{{asset('images/Edit Square.svg')}}" alt="">
                                     </a>
+
+
+
                                 </td>
 
                             </tr>

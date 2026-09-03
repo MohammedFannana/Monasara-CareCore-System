@@ -26,4 +26,10 @@ class Researcher extends Authenticatable
     {
         return $this->belongsTo(Association::class)->withDefault();
     }
+
+    public function uploadedMedia()
+    {
+        return $this->hasMany(OrphanMedia::class, 'researcher_id');
+    }
+
 }

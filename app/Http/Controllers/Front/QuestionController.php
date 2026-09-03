@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreQuestionValidatedRequest;
+use App\Http\Requests\UpdateQuestionValidatedRequest;
 use App\Models\Question;
 use Illuminate\Http\Request;
 
@@ -28,13 +30,10 @@ class QuestionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreQuestionValidatedRequest $request)
     {
 
-        $validated = $request->validate([
-            'question' => ['required' , 'string'],
-            'answer' => ['required' , 'string'],
-        ]);
+        $validated = $request->validated();
 
         Question::create($validated);
 
@@ -60,12 +59,9 @@ class QuestionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Question $question)
+    public function update(UpdateQuestionValidatedRequest $request, Question $question)
     {
-         $validated = $request->validate([
-            'question' => ['sometimes' , 'string'],
-            'answer' => ['sometimes' , 'string'],
-        ]);
+        $validated = $request->validated();
 
        $question->update($validated);
 

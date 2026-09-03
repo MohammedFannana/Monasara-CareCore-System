@@ -105,6 +105,14 @@
                         </div>
                     </div>
 
+                    {{-- nominating_authority --}}
+                    @if (auth()->guard('researcher')->check())
+                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                            <x-form.input name="nominating_authority" type="text" id="nominating_authority" label=" جهة الترشيح " placeholder="ادخل جهة الترشيح" />
+                        </div>
+                    @endif
+
+
                 </div>
 
 
@@ -285,40 +293,11 @@
 
                 </div>
 
-                {{-- income --}}
-                <div class="col-12 col-md-6 col-lg-4 mb-3">
-                    <label class="mb-2 fw-bold"> مصادر دخل أسرة اليتيم </label>
-                    <div class="d-flex align-items-center row">
-                        <div class="d-flex col-12 col-sm-6 gap-1">
-                            <input class="radio-input p-0" name="income" type="radio" id="no_income"  value="بدون دخل" @checked(old('income')=='بدون دخل')/>
-                            <label class="form-check-label" for="no_income" style="color: rgba(36, 36, 36, 0.6)"> بدون دخل </label>
-                        </div>
 
-                        <div class="d-flex col-12 col-sm-6 gap-1">
-                            <input class="radio-input p-0" name="income" type="radio" id="fixed_income"  value="دخل ثايت" @checked(old('income')=='دخل ثايت')/>
-                            <label class="form-check-label" for="fixed_income" style="color: rgba(36, 36, 36, 0.6)"> دخل ثابت </label>
-                        </div>
-
-                        @error('income')
-                            <div class="text-danger">
-                                {{$message}}
-                            </div>
-                        @enderror
-
-                    </div>
-                </div>
 
                 {{-- income_value & income_source--}}
                 <div class="row mb-3">
-                    {{-- income_value --}}
-                    <div class="col-12 col-md-6 col-lg-4 mb-3 income">
-                        <x-form.input name="income_value" type="text" label=" القيمة المالية للدخل " placeholder="ادخل القيمة المالية للدخل" />
-                    </div>
 
-                    <!-- income_source -->
-                    <div class="col-12 col-md-6 col-lg-4 mb-3 income">
-                        <x-form.input name="income_source" type="text" label=" مصدر الدخل " placeholder="ادخل مصدر الدخل" />
-                    </div>
 
 
                     {{-- Father's death certificate --}}
@@ -426,13 +405,13 @@
                     </div>
 
                     {{-- guardian_email --}}
-                    <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    {{-- <div class="col-12 col-md-6 col-lg-4 mb-3">
                         <x-form.input name="guardian_email"  type="text" id="guardian_email" label=" البريد الالكتروني " placeholder="ادخل البريد الالكتروني  "/>
-                    </div>
+                    </div> --}}
                 </div>
 
             </div>
-            
+
         </div>
 
     </section>
@@ -642,9 +621,17 @@
 
         <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
 
-            <div class="m-4">
+            <div class="m-4 row">
 
-                <div class="table-responsive">
+                <div class="col-12 col-md-6  mb-3">
+                    <x-form.input name="male_number" min="0" type="number" id="male_number" label=" عدد الأخوة الذكور "  />
+                </div>
+
+                <div class="col-12 col-md-6  mb-3">
+                    <x-form.input name="female_number" min="0" type="number" id="female_number" label=" عدد الأخوة الإناث " />
+                </div>
+
+                {{-- <div class="table-responsive">
                     <table id="siblingsTable" class=" border-0">
                         <thead>
                             <tr>
@@ -691,7 +678,7 @@
                     </table>
                 </div>
 
-                <button class="submit-btn mt-4" type="button" onclick="addRow()">إضافة أخ / أخت آخر +</button>
+                <button class="submit-btn mt-4" type="button" onclick="addRow()">إضافة أخ / أخت آخر +</button> --}}
 
             </div>
         </div>

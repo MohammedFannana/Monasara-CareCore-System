@@ -123,7 +123,8 @@
                         {{$displayName}}
                     </button>
                     <ul class="dropdown-menu" style="transform: translateX(70px);">
-                      <li><a class="dropdown-item" @if (Auth::guard('orphan')->check()) href="{{route('orphan.primary.index')}}" @else  href="{{route('profile.show')}}" @endif >الصفحة الشخصية</a></li>
+                        <li><a class="dropdown-item" @if (Auth::guard('orphan')->check()) href="{{route('orphan.primary.index')}}" @else  href="{{route('profile.show')}}" @endif >الصفحة الشخصية</a></li>
+                        <li><a class="dropdown-item" href="{{route('profile.edit')}}" > تغيير كلمة المرور </a></li>
                     </ul>
                   </div>
             </ul>
@@ -209,6 +210,20 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item  rounded {{Route::is('researcher.expenses.create')?'li-active':''}}">
+                                <a href="{{route('researcher.expenses.create')}}" class="nav-link d-flex gap-2 {{Route::is('researcher.expenses.create')?'link-active':''}}">
+                                    <img src="{{asset('images/transfers.svg')}}" alt="">
+                                    <p> المبالغ المدفوعة </p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item rounded {{Route::is('researcher.orphan.media.index')?'li-active':''}}"> <!-- li-active -->
+                                <a href="{{route('researcher.orphan.media.index')}}" class="nav-link d-flex gap-2 {{Route::is('researcher.orphan.media.index')?'link-active':''}}" style="color:black">  <!-- link-active -->
+                                    <img src="{{asset('images/sidebar/happy.png')}}" alt="">
+                                    <p> شاهد يتيمك (صور، فيديو) </p>
+                                </a>
+                            </li>
+
                             {{-- <li class="nav-item  rounded {{Route::is('orphan.message.create')?'li-active':''}}">
                                 <a href="{{route('orphan.message.create')}}" class="nav-link d-flex gap-2 {{Route::is('orphan.message.create')?'link-active':''}}">
                                     <img src="{{asset('images/sidebar/message.png')}}" alt="">
@@ -262,105 +277,158 @@
 
                         @auth('association')
 
-                            <li class="nav-item rounded ">
-                                <a href="#" class="nav-link {{Route::is('association.orphan.*')?'link-active':''}}  {{Route::is('association.orphan.*')?'li-active':''}}">
-                                    <img src="{{asset('images/sidebar/orphan (1).png')}}" alt="">
-                                     <p >الأيتام</p>
-                                    <i class="right fas fa-angle-left" style="transform:translateX(-140px)"></i>
-                                </a>
 
-                                <ul class="nav nav-treeview">
+
+
+                                    <li class="nav-item rounded ">
+                                        <a href="#" class="nav-link {{Route::is('association.orphan.*')?'link-active':''}}  {{Route::is('association.orphan.*')?'li-active':''}}">
+                                            <img src="{{asset('images/sidebar/orphan (1).png')}}" alt="">
+                                             <p >الأيتام</p>
+                                            <i class="right fas fa-angle-left" style="transform:translateX(-140px)"></i>
+                                        </a>
+
+                                        <ul class="nav nav-treeview">
+
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.create')}}" class="nav-link  ms-2">
+                                                <img src="{{asset('images/sidebar/add-user.png')}}" alt="">
+                                                    <p> إضافة يتيم </p>
+                                                </a>
+                                            </li>
+
+                                             <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.register')}}" class="nav-link  ms-2">
+                                                <img src="{{asset('images/sidebar/candidate.png')}}" alt="">
+                                                    <p> الأيتام المسجَّلون أوليًا </p>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.candidate')}}" class="nav-link  ms-2">
+                                                <img src="{{asset('images/sidebar/candidate.png')}}" alt="">
+                                                    <p> الأيتام المرشحون </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.auditor')}}" class="nav-link ms-2">
+                                                <img src="{{asset('images/sidebar/auditor.png')}}" alt="">
+                                                <p> الأيتام المدققون </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.certified')}}" class="nav-link ms-2">
+                                                <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                <p> الأيتام المعتمدون </p>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.waiting')}}" class="nav-link ms-2">
+                                                <img src="{{asset('images/sidebar/clock.png')}}" alt="">
+                                                <p> الأيتام قيد الانتظار </p>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.sponsored')}}" class="nav-link ms-2">
+                                                <img src="{{asset('images/sidebar/charity.png')}}" alt="">
+                                                <p> الأيتام المكفولون </p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('association.orphan.archived')}}" class="nav-link ms-2 {{Route::is('association.orphan.archived')?'link-active':''}}">
+                                                <img src="{{asset('images/sidebar/people.png')}}" alt="">
+                                                <p> الأيتام المؤرشفون </p>
+                                                </a>
+                                            </li>
+
+
+                                        </ul>
+                                    </li>
+
+                                    <li class="nav-item  rounded {{Route::is('association.amountsPaid.*')?'li-active':''}}">
+                                        <a href="{{route('association.researcher.index')}}" class="nav-link d-flex gap-2 {{Route::is('association.amountsPaid.*')?'link-active':''}}">
+                                            <img src="{{asset('images/sidebar/research.png')}}" alt="">
+                                            <p> الباحثون </p>
+                                        </a>
+                                    </li>
+
+
+                                    <li class="nav-item  rounded {{Route::is('association.expenses.*')?'li-active':''}}">
+                                        <a href="{{route('association.expenses.index')}}" class="nav-link d-flex gap-2 {{Route::is('association.expenses.*')?'link-active':''}}">
+                                            <img src="{{asset('images/transfers.svg')}}" alt="">
+                                            <p> المبالغ المدفوعة </p>
+                                        </a>
+                                    </li>
+
 
 
                                     <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.create')}}" class="nav-link  ms-2">
-                                        <img src="{{asset('images/sidebar/add-user.png')}}" alt="">
-                                            <p> إضافة يتيم </p>
+                                        <a href="" class="nav-link {{Route::is('admin.report.*')?'li-active':''}} {{Route::is('admin.report.*')?'link-active':''}}"  >
+                                            <img src="{{asset('images/sidebar/orphan (1).png')}}" alt="">
+
+                                            <p >
+                                                التقارير
+                                            </p>
+                                            <i class="right fas fa-angle-left" style="transform:translateX(-140px)"></i>
+
+                                        </a>
+                                        <ul class="nav nav-treeview">
+
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('admin.report.sponsorship')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsorship')?'link-active':''}}">
+                                                    <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                    تقارير الكفالات
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('admin.report.orphan')}}" class="nav-link ms-2 {{Route::is('admin.report.orphan')?'link-active':''}}">
+                                                    <img src="{{asset('images/sidebar/clock.png')}}" alt="">
+                                                    تقارير الأيتام
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item rounded">
+                                                <a href="{{route('admin.report.gift')}}" class="nav-link ms-2 {{Route::is('admin.report.gift')?'link-active':''}}">
+                                                    <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                    تقارير الهدايا
+                                                </a>
+                                            </li>
+
+                                        </ul>
+                                    </li>
+
+                                    <li class="nav-item  rounded {{Route::is('association.message.*')?'li-active':''}}">
+                                        <a href="{{route('association.message.index')}}" class="nav-link d-flex gap-2 {{Route::is('association.message.*')?'link-active':''}}">
+                                            <div>
+                                                <img src="{{asset('images/sidebar/messenger.png')}}" alt="">
+                                                <p> رسائل الأيتام </p>
+                                            </div>
+                                            @if($unreadSponsorCount > 0)
+                                                <span class="badge" style="background-color: #d5fbe3; color:var(--primary-color)"> {{$unreadSponsorCount}} </span>
+                                            @endif
                                         </a>
                                     </li>
 
-                                     <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.register')}}" class="nav-link  ms-2">
-                                        <img src="{{asset('images/sidebar/candidate.png')}}" alt="">
-                                            <p> الأيتام المسجَّلون أوليًا </p>
-                                        </a>
-                                    </li>
+                                    <li class="nav-item  rounded {{Route::is('association.notification')?'li-active':''}}">
+                                        <a href="{{route('association.notification')}}" class="nav-link d-flex justify-content-between gap-2 {{Route::is('association.notification')?'link-active':''}}">
 
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.candidate')}}" class="nav-link  ms-2">
-                                        <img src="{{asset('images/sidebar/candidate.png')}}" alt="">
-                                            <p> الأيتام المرشحون </p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.auditor')}}" class="nav-link ms-2">
-                                        <img src="{{asset('images/sidebar/auditor.png')}}" alt="">
-                                        <p> الأيتام المدققون </p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.certified')}}" class="nav-link ms-2">
-                                        <img src="{{asset('images/sidebar/certified.png')}}" alt="">
-                                        <p> الأيتام المعتمدون </p>
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.waiting')}}" class="nav-link ms-2">
-                                        <img src="{{asset('images/sidebar/clock.png')}}" alt="">
-                                        <p> الأيتام قيد الانتظار </p>
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('association.orphan.sponsored')}}" class="nav-link ms-2">
-                                        <img src="{{asset('images/sidebar/charity.png')}}" alt="">
-                                        <p> الأيتام المكفولون </p>
+                                            <div>
+                                                <img src="{{asset('images/sidebar/bell.png')}}" alt="">
+                                                الإشعارات
+                                            </div>
+                                            @if($unreadCountNotification > 0)
+                                                <span class="badge" style="background-color: #d5fbe3; color:var(--primary-color)"> {{$unreadCountNotification}} </span>
+                                            @endif
                                         </a>
                                     </li>
 
 
-                                </ul>
-                            </li>
 
-                            <li class="nav-item  rounded {{Route::is('association.amountsPaid.*')?'li-active':''}}">
-                                <a href="{{route('association.researcher.index')}}" class="nav-link d-flex gap-2 {{Route::is('association.amountsPaid.*')?'link-active':''}}">
-                                    <img src="{{asset('images/sidebar/research.png')}}" alt="">
-                                    <p> الباحثون </p>
-                                </a>
-                            </li>
 
-                            <li class="nav-item  rounded {{Route::is('association.expenses.*')?'li-active':''}}">
-                                <a href="{{route('association.expenses.index')}}" class="nav-link d-flex gap-2 {{Route::is('association.expenses.*')?'link-active':''}}">
-                                    <img src="{{asset('images/transfers.svg')}}" alt="">
-                                    <p> المبالغ المدفوعة </p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item  rounded {{Route::is('association.message.*')?'li-active':''}}">
-                                <a href="{{route('association.message.index')}}" class="nav-link d-flex gap-2 {{Route::is('association.message.*')?'link-active':''}}">
-                                    <div>
-                                        <img src="{{asset('images/sidebar/messenger.png')}}" alt="">
-                                        <p> رسائل الأيتام </p>
-                                    </div>
-                                    @if($unreadSponsorCount > 0)
-                                        <span class="badge" style="background-color: #d5fbe3; color:var(--primary-color)"> {{$unreadSponsorCount}} </span>
-                                    @endif
-                                </a>
-                            </li>
-
-                            <li class="nav-item  rounded {{Route::is('association.notification')?'li-active':''}}">
-                                <a href="{{route('association.notification')}}" class="nav-link d-flex justify-content-between gap-2 {{Route::is('association.notification')?'link-active':''}}">
-
-                                    <div>
-                                        <img src="{{asset('images/sidebar/bell.png')}}" alt="">
-                                        الإشعارات
-                                    </div>
-                                    @if($unreadCountNotification > 0)
-                                        <span class="badge" style="background-color: #d5fbe3; color:var(--primary-color)"> {{$unreadCountNotification}} </span>
-                                    @endif
-                                </a>
-                            </li>
 
                         @endauth
 
@@ -421,6 +489,8 @@
 
 
                         @auth('web')
+
+                            @can('show-admin')
 
                             <li class="nav-item rounded "> <!-- li-active -->
                                 <a href="" class="nav-link d-flex gap-2 ">  <!-- link-active -->
@@ -486,10 +556,20 @@
                                             الأيتام المكفولين
                                         </a>
                                     </li>
+                                    <li class="nav-item rounded">
+                                        <a href="{{route('admin.orphan.ArchivedOrphan')}}" class="nav-link ms-2 {{Route::is('admin.orphan.ArchivedOrphan')?'link-active':''}}">
+                                        <img src="{{asset('images/sidebar/people.png')}}" alt="">
+
+                                            الأيتام المؤرشفون
+                                        </a>
+                                    </li>
 
                                 </ul>
                             </li>
 
+                            @endcan
+
+                            @can('view-reports')
                             <li class="nav-item rounded">
                                 <a href="" class="nav-link {{Route::is('admin.report.*')?'li-active':''}} {{Route::is('admin.report.*')?'link-active':''}}"  >
                                     <img src="{{asset('images/sidebar/orphan (1).png')}}" alt="">
@@ -523,9 +603,25 @@
                                         </a>
                                     </li>
 
+                                    <li class="nav-item rounded">
+                                        <a href="{{route('admin.report.gift')}}" class="nav-link ms-2 {{Route::is('admin.report.gift')?'link-active':''}}">
+                                            <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                            تقارير الهدايا
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item rounded">
+                                        <a href="{{route('admin.report.financial')}}" class="nav-link ms-2 {{Route::is('admin.report.financial')?'link-active':''}}">
+                                            <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                            التقارير المالية
+                                        </a>
+                                    </li>
+
                                 </ul>
                             </li>
+                            @endcan
 
+                            @can('show-admin')
                             <li class="nav-item  rounded {{Route::is('admin.ad.*')?'li-active':''}}">
                                 <a href="{{route('admin.ad.index')}}" class="nav-link d-flex gap-2 {{Route::is('admin.ad.*')?'link-active':''}}">
                                     <img src="{{asset('images/sidebar/frequently-asked-questions.png')}}" alt="">
@@ -565,6 +661,15 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item  rounded {{Route::is('admin.sponsors.email')?'li-active':''}}">
+                                <a href="{{route('admin.sponsors.email')}}" class="nav-link d-flex gap-2 justify-content-between {{Route::is('admin.sponsors.email')?'link-active':''}}">
+                                    <div>
+                                        <img src="{{asset('images/sidebar/messenger.png')}}" alt="">
+                                        <p> رسائل للكفلاء </p>
+                                    </div>
+                                </a>
+                            </li>
+                            @endcan
 
 
                         @endauth

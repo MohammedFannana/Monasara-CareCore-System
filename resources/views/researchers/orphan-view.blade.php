@@ -86,6 +86,13 @@
                     </div>
                 @endif
 
+                @if ($orphan->nominating_authority)
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
+                        <span class="fw-bold">  جهة الترشيح : </span>
+                        <span class="value"> {{ $orphan->nominating_authority }}</span>
+                    </div>
+                @endif
+
 
 
             </div>
@@ -514,12 +521,12 @@
                         <hr>
 
                         {{-- guardian_email --}}
-                        @if($orphan->profile && $orphan->profile->guardian_email)
+                        {{-- @if($orphan->profile && $orphan->profile->guardian_email)
                         <div class="col-12  mb-3">
                             <span class="fw-bold"> البريد الالكتروني : </span>
                             <span class="value"> {{$orphan->profile->guardian_email}}  </span>
                         </div>
-                        @endif
+                        @endif --}}
 
                     </div>
 
@@ -667,55 +674,38 @@
 
 
     {{-- بيانات إخوة اليتيم --}}
-    @if($orphan->siblings->isNotEmpty())
-    <section class="family-information mt-5">
+    @isset($orphan->sibling)
+        <section class="family-information mt-5">
 
-        {{-- section header component --}}
-        <x-header title="  بيانات إخوة اليتيم " />
+            {{-- section header component --}}
+            <x-header title="  بيانات إخوة اليتيم " />
 
-        <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
+            <div class="border border-1 rounded" style="border-top-color:#f0fff4 !important">
 
-            <div class="m-4">
+                <div class="m-4">
 
-                <div class="table-responsive">
-                    <table  class=" border-0 w-100 text-center" style="border-collapse: collapse;">
+                    <div class="row mb-3">
 
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>الاسم</th>
-                                <th>الجنس</th>
-                                <th>العمر</th>
-                                <th>الحالة الاجتماعية</th>
-                                <th>المهنة</th>
-                                <th>رقم الهوية</th>
-                            </tr>
-                        </thead>
+                        @if($orphan->sibling && $orphan->sibling->male_number)
+                            <div class="col-12 col-md-6  mb-3">
+                                <span class="fw-bold"> عدد الأخوة الذكور </span>
+                                <span class="value"> {{$orphan->sibling->male_number}}  </span>
+                            </div>
+                        @endif
 
-                        <tbody>
+                        @if($orphan->sibling && $orphan->sibling->female_number)
+                            <div class="col-12 col-md-6  mb-3">
+                                <span class="fw-bold"> عدد الأخوة الإناث </span>
+                                <span class="value"> {{$orphan->sibling->female_number}}  </span>
+                            </div>
+                        @endif
+                    </div>
 
-
-                            @foreach ($orphan->siblings as $sibling)
-                                <tr>
-                                    <td><span class="value">{{ $sibling->id }}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_name }}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_gender }}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_age}}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_marital_status}}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_jop }}</span></td>
-                                    <td><span class="value">{{ $sibling->brother_id_number }}</span></td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
                 </div>
-
-
             </div>
-        </div>
 
-    </section>
-    @endif
+        </section>
+    @endisset
 
     {{-- How to receive sponsorship--}}
     @if ($orphan->profile && $orphan->profile->receive_guarantee)

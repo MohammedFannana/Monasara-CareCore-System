@@ -84,10 +84,15 @@
                                         </a>
 
 
-                                        <a href="{{route('sponsor.orphan.create' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
-                                            <img src="{{asset('images/Edit Square.svg')}}" alt="">
-                                            <span style="color: var(--text-color);">{{__(' اكفل الآن ')}}</span>
-                                        </a>
+
+                                        <form action="{{ route('sponsor.orphan.create') }}" method="POST" class="text-right">
+                                            @csrf
+                                            <input type="hidden" name="orphans_ids[]" value="{{ $orphan->id }}">
+                                            <button type="submit" class="btn m-0 p-0 text-decoration-none mb-1" style="color: var(--text-color);">
+                                                <img src="{{asset('images/Edit Square.svg')}}" alt="">
+                                                {{ __(' اكفل الآن ') }}
+                                            </button>
+                                        </form>
 
                                     </div>
 
@@ -113,5 +118,7 @@
         </div>
 
     </section>
+
+    {{ $orphans->withQueryString()->links() }}
 
 </x-main-layout>

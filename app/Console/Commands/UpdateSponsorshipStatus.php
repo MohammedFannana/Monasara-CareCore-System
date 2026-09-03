@@ -22,12 +22,16 @@ class UpdateSponsorshipStatus extends Command
     {
         $today = Carbon::today(); // تاريخ اليوم بدون وقت
 
-        $sponsorships = Sponsorship::where('status', 'active')->get();
+        $sponsorships = Sponsorship::where('status', 'active')
+            ->with(['orphan', 'sponsor', 'orphan.association'])
+            ->get();
 
         foreach ($sponsorships as $sponsorship) {
+
+            $duration = (int) $sponsorship->duration;
             // حساب تاريخ انتهاء الكفالة مع تصفير الوقت
             $endDate = Carbon::parse($sponsorship->sponsorship_date)
-                        ->addMonths($sponsorship->duration)
+                        ->addMonths($duration)
                         ->startOfDay();
 
             $this->daysLeft = $today->diffInDays($endDate, false);
@@ -39,8 +43,8 @@ class UpdateSponsorshipStatus extends Command
                 $age = Carbon::parse($orphan->birth_date)->age;
                 if ($age >= 18) {
                     $sponsorship->update(['status' => 'finished']);
-                    $orphan->update(['role' => 'rejected']);
-                    $this->info("⛔ تم إنهاء الكفالة رقم {$sponsorship->id} لأن اليتيم {$orphan->name} بلغ 18 عامًا.");
+                    $orphan->update(['role' => \App\Enums\OrphanRole::ARCHIVED->value]);
+                    $this->info("كافلنا الكريم، لقد بلغ يتيمك المكفول {$orphan->name} سن 18 عاماً، وبذلك تنتهي كفالته حسب قانون الجمعية. نتمنى استمرار عطائكم بكفالة يتيم آخر من قائمة الانتظار في الموقع." );
                     $this->notifyAboutSponsorship($sponsorship, 'ended');
                     continue; // انتقل للكفالة التالية
                 }
@@ -49,26 +53,26 @@ class UpdateSponsorshipStatus extends Command
             // تحقق إذا انتهت الكفالة اليوم
             if ($today->greaterThanOrEqualTo($endDate)) {
                 $sponsorship->update(['status' => 'finished']);
-                $this->info("✅ الكفالة رقم {$sponsorship->id} أصبحت منتهية.");
+                $this->info("كافلنا الكريم، نتمنى منكم دفع كفالة طفلكم المكفول {$orphan->name}، فقد حان وقت دفع الكفالة. جزاكم الله خيراً.");
                 $this->notifyAboutSponsorship($sponsorship, 'finish');
             }
 
 
             // إشعارات قبل انتهاء الكفالة بـ 30, 14, أو 3 أيام
-            elseif (in_array($this->daysLeft, [30, 14, 3])) {
-                $this->info("🔔 الكفالة رقم {$sponsorship->id} ستنتهي بعد {$this->daysLeft} يومًا.");
-                $this->notifyAboutSponsorship($sponsorship, 'soon');
+            elseif (in_array($this->daysLeft, [14, 7, 3, 1])) {
+                    $this->info("كافلنا الكريم، متبقٍ لحلول موعد دفع كفالتكم لطفلكم اليتيم {$orphan->name} {$this->daysLeft} يوماً. نتمنى منكم دفع الكفالة، جزاكم الله خيراً.");
+                    $this->notifyAboutSponsorship($sponsorship, 'soon');
             }
         }
 
         // تحديث حالة الأيتام الذين ليس لديهم كفالة نشطة
-        Orphan::with('sponsorships')->each(function ($orphan) {
-            $hasActive = $orphan->sponsorships()->where('status', 'active')->exists();
-            if (!$hasActive && $orphan->role !== 'waiting') {
-                $orphan->update(['role' => 'waiting']);
-                $this->info("⏳ تم تحديث حالة اليتيم {$orphan->name} إلى انتظار.");
-            }
-        });
+        // Orphan::with('sponsorships')->each(function ($orphan) {
+        //     $hasActive = $orphan->sponsorships()->where('status', 'active')->exists();
+        //     if (!$hasActive && $orphan->role !== 'waiting') {
+        //         $orphan->update(['role' => 'waiting']);
+        //         $this->info("⏳ تم تحديث حالة اليتيم {$orphan->name} إلى انتظار.");
+        //     }
+        // });
 
         $this->info('✅ تمت معالجة جميع الكفالات والأيتام بنجاح.');
     }
@@ -76,9 +80,9 @@ class UpdateSponsorshipStatus extends Command
     protected function notifyAboutSponsorship(Sponsorship $sponsorship, string $type = 'soon'): void
     {
         $message = match ($type) {
-            'ended' => "تم إنهاء الكفالة رقم {$sponsorship->id} لأن اليتيم {$sponsorship->orphan->name} بلغ 18 عامًا .",
-            'finish' => "تم إنهاء الكفالة رقم {$sponsorship->id} لأن اليتيم {$sponsorship->orphan->name}  انتهت مدة الكفالة.",
-            'soon' => "🔔 الكفالة رقم {$sponsorship->id} لليتيم {$sponsorship->orphan->name} ستنتهي بعد {$this->daysLeft} يومًا.",
+            'ended' => "كافلنا الكريم، لقد بلغ يتيمك المكفول {$sponsorship->orphan->name} سن 18 عاماً، وبذلك تنتهي كفالته حسب قانون الجمعية. نتمنى استمرار عطائكم بكفالة يتيم آخر من قائمة الانتظار في الموقع.",
+            'finish' => "كافلنا الكريم، نتمنى منكم دفع كفالة طفلكم المكفول {$sponsorship->orphan->name}، فقد حان وقت دفع الكفالة. جزاكم الله خيراً.",
+            'soon' => "كافلنا الكريم، متبقٍ لحلول موعد دفع كفالتكم لطفلكم اليتيم {$sponsorship->orphan->name} {$this->daysLeft} يوماً. نتمنى منكم دفع الكفالة، جزاكم الله خيراً.",
         };
 
         $notification = $type === 'ended' || $type === 'finish'

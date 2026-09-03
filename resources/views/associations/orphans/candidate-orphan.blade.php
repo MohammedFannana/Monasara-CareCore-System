@@ -71,7 +71,7 @@
                                             <span style="color: var(--text-color);">{{__('عرض التفاصيل')}}</span>
                                         </a>
 
-                                        <a href="{{route('orphan.edit' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
+                                        <a href="{{route('association.orphan.edit' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
                                             <img src="{{asset('images/Edit Square.svg')}}" alt="">
                                             <span style="color: var(--text-color);">{{__(' تعديل البيانات')}}</span>
                                         </a>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\StoreAdValidatedRequest;
 use App\Models\Ad;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -30,11 +31,9 @@ class AdController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAdValidatedRequest $request)
     {
-        $validated = $request->validate([
-            'ad' => ['required' , 'image' , 'mimes:png,jpg,jpeg'],
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('ad')) {
             $file = $request->file('ad');

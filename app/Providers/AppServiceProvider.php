@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // $this->app->usePublicPath(base_cpath('public_html'));
     }
 
     /**
@@ -27,81 +27,84 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
-         View::composer('*', function ($view) {
+         View::composer(['layouts.app', 'layouts.guest', 'layouts.main'], function ($view) {
+            $user = null;
+            $unreadSponsorCount = 0;
+            $unreadCountNotification = 0;
 
             if (Auth::guard('sponsor')->check()) {
-                $unreadSponsorCount = DatabaseNotification::where('notifiable_type', 'App\Models\Sponsor')
-                    ->where('notifiable_id', Auth::guard('sponsor')->id())
+                $user = Auth::guard('sponsor')->user();
+                $unreadSponsorCount = DatabaseNotification::where('notifiable_type', 'App\\Models\\Sponsor')
+                    ->where('notifiable_id', $user->id)
                     ->whereNull('read_at')
-                    ->where('type' , 'App\Notifications\OrphanMessage')
-                    ->where('status' , 'active')
+                    ->where('type', 'App\\Notifications\\OrphanMessage')
+                    ->where('status', 'active')
                     ->count();
 
-
-                $unreadCountNotification = auth('sponsor')->user()->unreadNotifications->filter(function ($notification) {
-                    return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                    || $notification->type === 'App\Notifications\SponsorshipEnded';
-                })
-                ->count();
-
+                $unreadCountNotification = $user->unreadNotifications()
+                    ->whereIn('type', ['App\\Notifications\\SponsorshipEndingSoon', 'App\\Notifications\\SponsorshipEnded'])
+                    ->count();
             }
-
-            elseif(Auth::guard('orphan')->check()) {
-                $unreadCountNotification = auth('orphan')->user()->unreadNotifications->filter(function ($notification) {
-                    return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                    || $notification->type === 'App\Notifications\SponsorshipEnded';
-                })
-                ->count();
-                $unreadSponsorCount = 0;
-
+            elseif (Auth::guard('orphan')->check()) {
+                $user = Auth::guard('orphan')->user();
+                $unreadCountNotification = $user->unreadNotifications()
+                    ->whereIn('type', ['App\\Notifications\\SponsorshipEndingSoon', 'App\\Notifications\\SponsorshipEnded'])
+                    ->count();
             }
-
-            elseif(Auth::guard('web')->check()){
-
+            elseif (Auth::guard('web')->check()) {
+                $user = Auth::guard('web')->user();
                 $unreadSponsorCount = DatabaseNotification::where(function ($query) {
-                        $query->where('notifiable_type', 'App\Models\Sponsor')
-                            ->orWhere('notifiable_type', 'App\Models\User');
+                        $query->where('notifiable_type', 'App\\Models\\Sponsor')
+                            ->orWhere('notifiable_type', 'App\\Models\\User');
                     })
-                    ->where('notifiable_id', Auth::guard('web')->id())
+                    ->where('notifiable_id', $user->id)
                     ->whereNull('read_at')
-                    ->where('type' , 'App\Notifications\OrphanMessage')
-                    ->where('status' , 'active')
+                    ->where('type', 'App\\Notifications\\OrphanMessage')
+                    ->where('status', 'active')
                     ->count();
 
-                $unreadCountNotification = auth('web')->user()->unreadNotifications->filter(function ($notification) {
-                    return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                    || $notification->type === 'App\Notifications\SponsorshipEnded';
-                })
-                ->count();
+                $unreadCountNotification = $user->unreadNotifications()
+                    ->whereIn('type', ['App\\Notifications\\SponsorshipEndingSoon', 'App\\Notifications\\SponsorshipEnded'])
+                    ->count();
             }
-
-            elseif(Auth::guard('association')->check()){
+            elseif (Auth::guard('association')->check()) {
                 $unreadSponsorCount = DatabaseNotification::whereNull('read_at')
-                    ->where('type' , 'App\Notifications\OrphanMessage')
-                    ->where('status' , 'inactive')
+                    ->where('type', 'App\\Notifications\\OrphanMessage')
+                    ->where('status', 'inactive')
                     ->count();
 
-                 $unreadCountNotification = auth('association')->user()->unreadNotifications->filter(function ($notification) {
-                    return $notification->type === 'App\Notifications\SponsorshipEndingSoon'
-                    || $notification->type === 'App\Notifications\SponsorshipEnded';
-                })
-                ->count();
+                $user = Auth::guard('association')->user();
+                $unreadCountNotification = $user->unreadNotifications()
+                    ->whereIn('type', ['App\\Notifications\\SponsorshipEndingSoon', 'App\\Notifications\\SponsorshipEnded'])
+                    ->count();
             }
-
-            else{
-                $unreadSponsorCount = 0;
-                $unreadCountNotification = 0;
-            }
-
 
             $view->with('unreadSponsorCount', $unreadSponsorCount)
-            ->with('unreadCountNotification' , $unreadCountNotification);
+                ->with('unreadCountNotification', $unreadCountNotification);
         });
 
         Gate::define('complete-orphan-data', function ($user, Orphan $orphan) {
+            // use optional() to avoid errors when profile is missing; controllers that render lists
+            // should eager-load 'profile' to avoid N+1
             return empty($orphan->guardian_name)
-                || empty($orphan->profile->guardian_whats_phone);
+                || empty(optional($orphan->profile)->guardian_whats_phone);
         });
+
+        Gate::define('view-reports', function ($user) {
+            return $user->role === 'accountant' || $user->role === 'admin' || $user->role === 'association';
+        });
+
+        Gate::define('show-admin', function ($user) {
+            return $user->role === 'admin';
+        });
+
+        // Gate::define('add-payments', function ($user) {
+        //     return in_array($user->role, ['accountant', 'association']);
+        // });
+
+        // Gate::define('show-association', function ($user) {
+        //     return in_array($user->role, ['association']);
+        // });
 
 
     }

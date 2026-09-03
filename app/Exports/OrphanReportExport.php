@@ -18,6 +18,7 @@ class OrphanReportExport implements FromCollection, WithHeadings
     {
 
         return $this->orphans->map(function ($orphan) {
+            $lastSponsorship = $orphan->sponsorships->first();
             return [
                 'name' => $orphan->name,
                 'association_id ' => $orphan->association->name,
@@ -31,12 +32,13 @@ class OrphanReportExport implements FromCollection, WithHeadings
                 'gender' => $orphan->gender,
                 'health_status' => optional($orphan->profile)->health_status,
                 'educational_status' => optional($orphan->profile)->educational_status,
-                'guardian_name' => $orphan->guardian_name	,
+                'guardian_name' => $orphan->guardian_name,
+                'guardian_id_number' => optional($orphan->profile)->guardian_id_number,
                 'guardian_first_phone' => optional($orphan->profile)->guardian_first_phone,
                 'account_number' => optional($orphan->profile)->account_number,
                 'wallet_number' =>optional($orphan->profile)->wallet_number,
-                'sponsor_name' => $orphan->activeSponsorships?->sponsor->name,
-                'sponsor_name' => $orphan->activeSponsorships?->sponsorship_date,
+                'sponsor_name' => $lastSponsorship?->sponsor?->name,
+                'sponsor_date' => $lastSponsorship?->sponsorship_date,
 
             ];
         });
@@ -44,9 +46,9 @@ class OrphanReportExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ['اسم اليتيم', ' اسم الجمعية ', ' تاريخ الميلاد ', 'مكان الميلاد', 'الدولة',
+        return ['اسم اليتيم', ' اسم الجمعية ' , ' تاريخ الميلاد ', 'مكان الميلاد', 'الدولة',
         'المدينة' , 'أقرب معلم' ,'رقم الهوية' , 'حالة اليتيم' , 'الجنس',
-        'الحالة الصحية' , 'الحالة التعليمية' , 'اسم الوصي' , 'رقم جوال الوصي' ,'الحساب البنكي' , 'رقم المحفظة' , 'اسم الكافل' , 'تاريخ بدأ الكفالة'
+        'الحالة الصحية' , 'الحالة التعليمية' , 'اسم الوصي' , 'رقم هوية الوصي' , 'رقم جوال الوصي' ,'الحساب البنكي' , 'رقم المحفظة' , 'اسم الكافل' , 'تاريخ بدأ الكفالة'
         ];
     }
 }

@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers\Admin\Report;
 
-use Carbon\Carbon;
+use App\Exports\FinancialReportExport;
+use App\Exports\GiftReportExport;
+use App\Exports\OrphanReportExport;
+use App\Exports\SponsorReportExport;
+use App\Exports\SponsorshipReportExport;
+use App\Http\Controllers\Controller;
+use App\Jobs\GenerateReportJob;
+use App\Models\Association;
+use App\Models\Gift;
 use App\Models\Orphan;
 use App\Models\Report;
 use App\Models\Sponsor;
 use App\Models\Sponsorship;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Exports\OrphanReportExport;
-use App\Exports\SponsorReportExport;
-use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
-use App\Exports\SponsorshipReportExport;
-use App\Models\Association;
+use Maatwebsite\Excel\Facades\Excel;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 
@@ -63,214 +67,66 @@ class SponsorController extends Controller
 
     }
 
-    public function ExcelReport(Request $request){
+    // **
+    public function indexGift(Request $request){
 
-        $date = Carbon::parse($request->date);
-        $folder = $date->format('m-Y');
+        $reports = Report::where('type' , 'gift')
+        ->when($request->filled('search'), function ($query) use ($request) {
+            $date = Carbon::parse($request->search);
 
-        if($request->type == "sponsor"){
-
-            $fileName = 'sponsor_report_' . $folder . '.xlsx';
-            $filePath = 'reports/sponsors' . $fileName;
-
-            // خزّن التقرير داخل storage/app/public/reports
-            Excel::store(new SponsorReportExport, $filePath, 'public');
-
-            // خزّن في الداتابيز
-            Report::create([
-                'type' => 'sponsor',
-                'report' => $filePath,
-                'date' => Carbon::createFromFormat('Y-m', $request->date)->startOfMonth(),
-                'date_to' => Carbon::createFromFormat('Y-m', $request->date_to)->startOfMonth(),
-
-            ]);
-
-            return redirect()->back()->with('success' , 'تم إنشاء التقرير بنجاح');
-
-        }elseif($request->type == "sponsorship"){
-
-            $fileName = 'sponsorship_report_' . $folder . '.xlsx';
-            $filePath = 'reports/sponsorships' . $fileName;
-
-            // خزّن التقرير داخل storage/app/public/reports
-            Excel::store(new SponsorshipReportExport($request->status), $filePath, 'public');
-
-            // خزّن في الداتابيز
-            Report::create([
-                'type' => 'sponsorship',
-                'report' => $filePath,
-                'date' => Carbon::createFromFormat('Y-m', $request->date)->startOfMonth(),
-                'date_to' => Carbon::createFromFormat('Y-m', $request->date_to)->startOfMonth(),
-
-            ]);
-
-            return redirect()->back()->with('success' , 'تم إنشاء التقرير بنجاح');
-        }elseif ($request->type == "orphan") {
-
-            $query = Orphan::query();
-
-            $searchBys = $request->input('search_by', []);
-            $conditions = $request->input('condition', []);
-            $values = $request->input('search_value', []);
-            $isSearch = collect($values)->filter(function ($value) {
-                return $value !== null && $value !== '';
-            })->isNotEmpty();
-
-            if ($isSearch) {
-
-                foreach ($searchBys as $index => $field) {
-                    $condition = $conditions[$index] ?? '==';
-                    $value = $values[$index] ?? null;
-
-                    if ($value !== null && $value !== '') {
-                        if ($condition == '==') {
-                            $query->where($field, $value);
-                        }
-                        // يمكن إضافة شروط أخرى هنا لاحقًا
-                    }
-                }
-            }
-
-
-
-            $orphans = $query->get(); // استخدم get بدلاً من paginate لتصدير البيانات كاملة
-            $folder = Carbon::parse($request->date)->format('m-Y');
-            $fileName = 'orphan_report_' . $folder . '.xlsx';
-            $filePath = 'reports/orphans/' . $fileName;
-
-            // خزّن التقرير داخل storage/app/public/reports
-            Excel::store(new OrphanReportExport($orphans), $filePath, 'public');
-
-            // خزّن في الداتابيز
-            Report::create([
-                'type' => 'orphan',
-                'report' => $filePath,
-                'date' => Carbon::createFromFormat('Y-m', $request->date)->startOfMonth(),
-                'date_to' => Carbon::createFromFormat('Y-m', $request->date_to)->startOfMonth(),
-            ]);
-
-            return redirect()->back()->with('success', 'تم إنشاء التقرير بنجاح');
-        }
+            $query->whereYear('date', $date->year)
+                ->whereMonth('date', $date->month);
+        })->paginate(10);
+        return view('admins.reports.gift' , compact('reports'));
 
     }
 
+
+    public function financial(Request $request){
+        $reports = Report::where('type' , 'financial')
+        ->when($request->filled('search'), function ($query) use ($request) {
+            $date = Carbon::parse($request->search);
+
+            $query->whereYear('date', $date->year)
+                ->whereMonth('date', $date->month);
+        })->paginate(10);
+        return view('admins.reports.financial' , compact('reports'));
+    }
+
+    // **
+    public function ExcelReport(Request $request){
+        GenerateReportJob::dispatch(
+            $request->type,
+            $request->date,
+            $request->date_to,
+            $request->status,
+            'excel',
+            [
+                'search_by' => $request->input('search_by', []),
+                'condition' => $request->input('condition', []),
+                'search_value' => $request->input('search_value', []),
+            ]
+        );
+
+        return redirect()->back()->with('success', 'تم بدء إنشاء التقرير في الخلفية، وسيتم تفعيله خلال دقائق قليلة.');
+    }
+
+    // **
     public function PdfReport(Request $request){
+        GenerateReportJob::dispatch(
+            $request->type,
+            $request->date,
+            $request->date_to,
+            $request->status,
+            'pdf',
+            [
+                'search_by' => $request->input('search_by', []),
+                'condition' => $request->input('condition', []),
+                'search_value' => $request->input('search_value', []),
+            ]
+        );
 
-        $date = Carbon::parse($request->date);
-        $date_to = Carbon::parse($request->date_to);
-        $folder = $date->format('m-Y');
-
-        ini_set('pcre.backtrack_limit', '5000000'); // 5 million
-        ini_set('max_execution_time', 300); // 300 seconds = 5 minutes
-
-
-
-        if($request->type == "sponsor"){
-
-
-            $fileName = 'sponsor_report_' . $folder . '.pdf';
-            $filePath = 'reports/sponsors' . $fileName;
-
-            // جهّز البيانات
-
-            $sponsors = Sponsor::get();
-
-
-            // أنشئ الـ PDF
-            $pdf = Pdf::loadView('admins.reports.pdf.sponsor', compact(['sponsors' , 'date']));
-
-            // خزّن الملف داخل storage/app/public/reports
-            Storage::disk('public')->put($filePath, $pdf->output());
-
-            // خزّن في الداتابيز
-            Report::create([
-                'type' => 'sponsor',
-                'report' => $filePath,
-                'date' => $date->startOfMonth(),
-                'date_to'=> $date_to->startOfMonth()
-            ]);
-
-            return redirect()->back()->with('success', 'تم إنشاء التقرير بنجاح');
-
-
-        }elseif($request->type == "sponsorship"){
-
-            $fileName = 'sponsorship_report_' . $folder . '.pdf';
-            $filePath = 'reports/sponsorships' . $fileName;
-
-            // جهّز البيانات
-
-            $sponsorships = Sponsorship::where('status' , $request->status)
-            ->with('orphan' , 'sponsor')
-            ->get();
-
-
-            // أنشئ الـ PDF
-            $pdf = Pdf::loadView('admins.reports.pdf.sponsorship', compact(['sponsorships' , 'date']));
-
-            // خزّن الملف داخل storage/app/public/reports
-            Storage::disk('public')->put($filePath, $pdf->output());
-
-            // خزّن في الداتابيز
-            Report::create([
-                'type' => 'sponsorship',
-                'report' => $filePath,
-                'date' => $date->startOfMonth(),
-                'date_to'=> $date_to->startOfMonth()
-            ]);
-
-            return redirect()->back()->with('success', 'تم إنشاء التقرير بنجاح');
-
-        }elseif ($request->type == "orphan") {
-
-            $query = Orphan::query();
-
-            $searchBys = $request->input('search_by', []);
-            $conditions = $request->input('condition', []);
-            $values = $request->input('search_value', []);
-            $isSearch = collect($values)->filter(function ($value) {
-                return $value !== null && $value !== '';
-            })->isNotEmpty();
-
-            if ($isSearch) {
-
-                foreach ($searchBys as $index => $field) {
-                    $condition = $conditions[$index] ?? '==';
-                    $value = $values[$index] ?? null;
-
-                    if ($value !== null && $value !== '') {
-                        if ($condition == '==') {
-                            $query->where($field, $value);
-                        }
-                        // يمكن إضافة شروط أخرى هنا لاحقًا
-                    }
-                }
-            }
-
-
-
-            $orphans = $query->with('profile' , 'association')->get(); // استخدم get بدلاً من paginate لتصدير البيانات كاملة
-            $folder = Carbon::parse($request->date)->format('m-Y');
-            $fileName = 'orphan_report_' . $folder . '.pdf';
-            $filePath = 'reports/orphans/' . $fileName;
-
-            // خزّن التقرير داخل storage/app/public/reports
-            $pdf = Pdf::loadView('admins.reports.pdf.orphan', compact(['orphans' , 'date']));
-
-            // خزّن الملف داخل storage/app/public/reports
-            Storage::disk('public')->put($filePath, $pdf->output());
-
-            // خزّن في الداتابيز
-            Report::create([
-                'type' => 'orphan',
-                'report' => $filePath,
-                'date' => Carbon::createFromFormat('Y-m', $request->date)->startOfMonth(),
-                'date_to' => Carbon::createFromFormat('Y-m', $request->date_to)->startOfMonth(),
-            ]);
-
-            return redirect()->back()->with('success', 'تم إنشاء التقرير بنجاح');
-        }
-
+        return redirect()->back()->with('success', 'تم بدء إنشاء التقرير في الخلفية، وسيتم تفعيله خلال دقائق قليلة.');
     }
 
     public function download(string $id){

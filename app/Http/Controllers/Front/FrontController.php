@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Http\Requests\ContactMessageValidatedRequest;
 use App\Models\Ad;
 use App\Models\User;
 use App\Models\Orphan;
@@ -21,24 +22,20 @@ class FrontController extends Controller
         $questions = Question::get()->take(5);
         $ads = Ad::all();
         $orphansCount = Orphan::count();
-        $orphanSponsorCount = Orphan::where('role' , 'sponsored')->count();
+        $orphanSponsorCount = Orphan::sponsored()->count();
         $sponsorsCount = Sponsor::count();
         $sponsorshipsCount = Sponsorship::count();
         return view('index' , compact(['questions' , 'ads','orphansCount' ,'sponsorsCount' ,'sponsorshipsCount' , 'orphanSponsorCount']));
     }
 
     public function showOrphanToSponsored(){
-        $orphans = Orphan::where('role' , 'waiting')->paginate(8);
+        $orphans = Orphan::waiting()->with('latestSponsorship')->paginate(8);
         return view('front.show-orphan-to-sponsorship' , compact('orphans'));
     }
 
-    public function send(Request $request){
+    public function send(ContactMessageValidatedRequest $request){
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'message' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
 
         $admin = User::first(); // أو role=admin

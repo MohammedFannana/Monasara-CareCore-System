@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use App\Enums\OrphanRole;
 
 class ImportOrphans extends Command
 {
@@ -96,7 +97,7 @@ class ImportOrphans extends Command
                     'gender' => $data['الجنس'] ?? null,
                     'id_number' => $data['رقم هوية اليتيم'] ?? null,
                     'password' => isset($data['رقم هوية اليتيم']) ? Hash::make($data['رقم هوية اليتيم']) : null,
-                    'candidate' => 'candidate',
+                    'role' => OrphanRole::CANDIDATE->value,
                     'association_id' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),

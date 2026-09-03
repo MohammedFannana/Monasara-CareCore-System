@@ -73,7 +73,7 @@
                                 <td><span class="value">  {{$orphan->country}}       </span></td>
                                 <td><span class="value">  {{$orphan->association->name}}  </span></td>
                                 <td><span class="value">  {{$orphan->orphan_status}} </span></td>
-                                <td><span class="value"> @if ($orphan->role == 'auditor') تم التدقيق  @elseif($orphan->role == 'candidate')  لم يُدقَّق @endif </span></td>
+                                <td><span class="value"> @if ($orphan->isAuditor()) تم التدقيق  @elseif($orphan->isCandidate())  لم يُدقَّق @endif </span></td>
 
                                 <td style="position: relative;">
 
@@ -90,9 +90,9 @@
                                             <span style="color: var(--text-color);">{{__(' تعديل البيانات')}}</span>
                                         </a>
 
-                                        @if (Gate::denies('complete-orphan-data', $orphan) && $orphan->role == 'candidate')
+                                        @if (Gate::denies('complete-orphan-data', $orphan) && $orphan->isCandidate())
 
-                                            <a href="{{route('orphan.review' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
+                                            <a href="{{route('researcher.orphan.review' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
                                                 <img src="{{asset('images/Edit Square.svg')}}" alt="">
                                                 <span style="color: var(--text-color);">{{__(' مراجعة الحالة ')}}</span>
                                             </a>

@@ -53,6 +53,10 @@
                             <x-form.input name="id_number" type="text" id="id_number" label=" رقم هوية اليتيم " placeholder="ادخل رقم هوية اليتيم" />
                         </div>
 
+                        <div class="col-12 col-md-6 mb-3">
+                            <x-form.input name="nominating_authority" type="text" id="nominating_authority" label=" جهة الترشيح " placeholder="ادخل جهة الترشيح" />
+                        </div>
+
                     </div>
 
 

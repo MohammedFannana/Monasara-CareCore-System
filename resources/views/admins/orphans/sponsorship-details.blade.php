@@ -46,8 +46,17 @@
 
                             @php
                                 $startDate = \Carbon\Carbon::parse($sponsorship->sponsorship_date);
-                                $endDate = $startDate->copy()->addMonths($sponsorship->duration);
+
+                                // تأكد أن المدة رقمية
+                                $duration = is_numeric($sponsorship->duration) ? (int)$sponsorship->duration : 0;
+
+                                // انسخ التاريخ وأضف عدد الأشهر إذا المدة صحيحة
+                                $endDate = $startDate->copy();
+                                if ($duration > 0) {
+                                    $endDate->addMonths($duration);
+                                }
                             @endphp
+
 
                             <tr>
                                 {{-- <td> <span class="value"> {{$orphan->id}}         </span> </td> --}}

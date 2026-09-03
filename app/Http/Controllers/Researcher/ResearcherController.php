@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Researcher;
 
+use App\Http\Requests\StoreResearcherOrphanValidatedRequest;
 use App\Models\Orphan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -16,8 +17,8 @@ class ResearcherController extends Controller
 
         $orphans = Orphan::where('association_id', $researcher->association_id)
         ->where(function ($query) {
-            $query->where('role', 'candidate')
-                  ->orWhere('role', 'auditor');
+            $query->where('role', \App\Enums\OrphanRole::CANDIDATE->value)
+                  ->orWhere('role', \App\Enums\OrphanRole::AUDITOR->value);
         })
         ->whereNotNull('guardian_name')
         ->whereHas('profile', function ($query) {
@@ -26,6 +27,8 @@ class ResearcherController extends Controller
         ->when($request->search, function ($builder, $value) { //from search input
             $builder->where('name', 'LIKE', "%{$value}%");
         })
+        // eager-load association and profile to avoid N+1 when view accesses association->name and Gate checks profile
+        ->with(['association', 'profile'])
         ->paginate(10);
         // $researcher = auth('researcher')->user();
         return view('researchers.index' , compact('orphans'));
@@ -38,7 +41,7 @@ class ResearcherController extends Controller
 
         $orphans = Orphan::with('profile')
         ->where('association_id', $researcher->association_id)
-        ->where('role' , 'candidate')
+        ->candidate()
         ->whereNull('guardian_name')
         ->where(function ($query) {
         $query->whereDoesntHave('profile') // لا يملك profile
@@ -71,7 +74,7 @@ class ResearcherController extends Controller
             }
         }
 
-        $orphan = $orphan->load(['profile' , 'siblings']);
+        $orphan = $orphan->load(['profile' , 'sibling']);
         return view('researchers.orphan-view' , compact('orphan'));
     }
 
@@ -80,7 +83,7 @@ class ResearcherController extends Controller
 
     }
 
-    public function store(Request $request){
+    public function store(StoreResearcherOrphanValidatedRequest $request){
 
         if(Auth::guard('researcher')->check()){
 
@@ -90,16 +93,9 @@ class ResearcherController extends Controller
                 'association_id' => $association_id,
             ]);
 
-            $validated = $request->validate([
+            $validated = $request->validated();
 
-                'name' => ['required', 'string'],
-                'birth_date' => ['required'],
-                'id_number' => ['required' , 'numeric' , 'digits:9' , 'unique:orphans,id_number'],
-                'association_id' => ['required' , 'exists:associations,id']
-
-            ]);
-
-            $validated['role'] = 'candidate';
+            $validated['role'] = \App\Enums\OrphanRole::CANDIDATE->value;
             $validated['password'] =  Hash::make($validated['id_number']) ;
 
 

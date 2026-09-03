@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Association;
 
 use Exception;
+use App\Http\Requests\ReviewValidatedRequest;
 use App\Models\Orphan;
 use App\Models\Review;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class ReviewController extends Controller
     }
 
 
-    public function researcherReview(Request $request){
+    public function researcherReview(ReviewValidatedRequest $request){
 
         $orphan = Orphan::findOrFail($request->orphan_id);
 
@@ -41,7 +42,7 @@ class ReviewController extends Controller
         }
 
 
-        if($orphan->role == 'auditor'){
+        if($orphan->isAuditor()){
             abort(404);
         }
 
@@ -51,14 +52,7 @@ class ReviewController extends Controller
             'review_date' =>now()->format('Y-m-d'),
         ]);
 
-        $validated = $request->validate([
-            'review_number'  => ['required' , 'string' , 'in:first,final'],
-            'review_date' => ['required' , 'date'],
-            'orphan_id' => ['required' , 'exists:orphans,id'],
-            'status' => ['required' , 'in:approved,rejected'],
-            'report' => ['required' , 'string'],
-            'name' => ['required' , 'string']
-        ]);
+        $validated = $request->validated();
 
 
 
@@ -74,10 +68,10 @@ class ReviewController extends Controller
 
             if ($request->status == 'approved') {
 
-                $orphan->update(['role' => 'auditor']);
+                $orphan->update(['role' => \App\Enums\OrphanRole::AUDITOR->value]);
 
             } else {
-                $orphan->update(['role' => 'rejected']);
+                $orphan->update(['role' => \App\Enums\OrphanRole::REJECTED->value]);
             }
 
 
@@ -94,21 +88,14 @@ class ReviewController extends Controller
 
     }
 
-    public function associationReview(Request $request){
+    public function associationReview(ReviewValidatedRequest $request){
 
         $request->merge([
             'review_number' => 'final',
             'review_date' =>now()->format('Y-m-d'),
         ]);
 
-        $validated = $request->validate([
-            'review_number'  => ['required' , 'string' , 'in:first,final'],
-            'review_date' => ['required' , 'date'],
-            'orphan_id' => ['required' , 'exists:orphans,id'],
-            'status' => ['required' , 'in:approved,rejected'],
-            'report' => ['required' , 'string'],
-            'name' => ['required' , 'string']
-        ]);
+        $validated = $request->validated();
 
 
         DB::beginTransaction();
@@ -125,13 +112,13 @@ class ReviewController extends Controller
             if ($request->status == 'approved') {
 
                 if($orphan->activeSponsorships){
-                    $orphan->update(['role' => 'sponsored']);
+                    $orphan->update(['role' => \App\Enums\OrphanRole::SPONSORED->value]);
                 }else{
-                    $orphan->update(['role' => 'certified']);
+                    $orphan->update(['role' => \App\Enums\OrphanRole::CERTIFIED->value]);
                 }
 
             } else {
-                $orphan->update(['role' => 'rejected']);
+                $orphan->update(['role' => \App\Enums\OrphanRole::REJECTED->value]);
             }
 
 

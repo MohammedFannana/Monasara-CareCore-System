@@ -12,6 +12,12 @@
         من فضلك، اختر الفئة التي تنتمي إليها
     </p>
 
+    @error('guard')
+        <div class="alert alert-danger">
+            {{ $message }}
+        </div>
+    @enderror
+
 
 
     <form method="POST" action="{{ route('login') }}" dir="rtl" id="loginForm">
@@ -81,7 +87,7 @@
 
             <div class="flex items-center justify-end mt-4">
                 @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-decoration-none" href="{{ route('password.request') }}" style="color:var(--primary-color);">
+                    <a id="resetLink" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-decoration-none" href="{{ route('password.request') }}" style="color:var(--primary-color);">
                         هل نسيت كلمة المرور؟
                     </a>
                 @endif
@@ -94,13 +100,15 @@
 
         <button type="submit" class="submit-btn w-100 text-center"> تسجيل الدخول </button>
 
-
+        <a href="{{ route('sponsor.register') }}" style="display: none ; color:var(--primary-color)" id="register" class="text-md text-center mt-2   focus:outline-none  text-decoration-none">
+            إنشاء حساب جديد
+        </a>
 
     </form>
 
     @push('script')
 
-        <script>
+    <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const guardInput = document.getElementById('guardInput');
                 const guardButtons = document.querySelectorAll('.guard-btn');
@@ -109,6 +117,7 @@
                 const idInputDiv = document.getElementById('idInput');
                 const emailInput = document.getElementById('email');
                 const idNumberInput = document.getElementById('id_number');
+                const registerLink = document.getElementById('register');
 
                 let selectedGuard = localStorage.getItem('selectedGuard') || '';
 
@@ -122,6 +131,16 @@
                         // إخفاء البريد وتعطيله
                         emailInputDiv.style.display = 'none';
                         emailInput.disabled = true;
+                        registerLink.style.display = 'none';
+                    }else if (guard === 'sponsor') {
+                        // عرض البريد وتفعيله
+                        emailInputDiv.style.display = 'block';
+                        emailInput.disabled = false;
+
+                        // إخفاء رقم الهوية وتعطيله
+                        idInputDiv.style.display = 'none';
+                        idNumberInput.disabled = true;
+                        registerLink.style.display = 'block';
                     } else {
                         // عرض البريد وتفعيله
                         emailInputDiv.style.display = 'block';
@@ -130,6 +149,7 @@
                         // إخفاء رقم الهوية وتعطيله
                         idInputDiv.style.display = 'none';
                         idNumberInput.disabled = true;
+                        registerLink.style.display = 'none'
                     }
                 }
 
@@ -176,6 +196,23 @@
             </script>
 
     </script>
+
+    <script>
+        document.getElementById('resetLink').addEventListener('click', function (e) {
+            e.preventDefault();
+
+            // اقرأ آخر guard مختار مباشرة
+            const guard = localStorage.getItem('selectedGuard');
+
+            if (!guard) {
+                alert('الرجاء اختيار نوع الحساب أولاً');
+                return;
+            }
+
+            // انتقل للرابط مع guard
+            window.location.href = "{{ route('password.request') }}" + "?type=" + guard;
+        });
+</script>
 
     {{-- <script>
         document.addEventListener('DOMContentLoaded', function () {

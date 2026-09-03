@@ -71,13 +71,13 @@
                                             <span style="color: var(--text-color);">{{__('عرض التفاصيل')}}</span>
                                         </a>
 
-                                        <a href="{{route('orphan.review' , $orphan->id)}}" class="text-decoration-none mb-1">
+                                        <a href="{{route('association.orphan.review' , $orphan->id)}}" class="text-decoration-none mb-1">
                                             <img src="{{asset('images/Show.svg')}}" alt="">
                                             <span style="color: var(--text-color);">{{__(' اعتماد اليتيم ')}}</span>
                                         </a>
 
 
-                                        <a href="{{route('orphan.edit' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
+                                        <a href="{{route('association.orphan.edit' , $orphan->id)}}" class="text-decoration-none mb-1" style="gap: 10px">
                                             <img src="{{asset('images/Edit Square.svg')}}" alt="">
                                             <span style="color: var(--text-color);">{{__(' تعديل البيانات')}}</span>
                                         </a>

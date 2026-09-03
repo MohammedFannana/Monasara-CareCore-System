@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\SponsorRegistered;
 use App\Http\Controllers\Controller;
+use App\Models\Sponsor;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -31,20 +33,28 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.Sponsor::class],
+            'phone' => ['required', 'string', 'max:255'],
+            'country' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        $sponsor = Sponsor::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'country' => $request->country,
+            'address' => $request->address,
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        event(new SponsorRegistered($sponsor));
+        event(new Registered($sponsor));
 
-        Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        Auth::login($sponsor);
+
+        return redirect(route('login', absolute: false));
     }
 }

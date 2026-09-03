@@ -17,6 +17,13 @@
 
             <div class="row">
                 @forelse ($notifications as $notification)
+                    @if($notification->type === 'App\Notifications\NewSponsorNotification')
+                        <div class="card col-12 p-2 d-flex flex-row justify-content-between pt-3">
+                            <h6 class="fw-bold text-success">{{ $notification->data['title'] }}</h6>
+                            <p>الكافل الجديد: {{ $notification->data['name'] }}</p>
+                            <small>البريد: {{ $notification->data['email'] }}</small>
+                        </div>
+                    @else
                     <div class="card col-12 p-2 d-flex flex-row justify-content-between pt-3">
                         {{-- @dd($message->orphan_id) --}}
                         {{-- <h5> {{$notification->data['orphan_name']}} </h5> --}}
@@ -28,6 +35,9 @@
                         </p>
 
                     </div>
+                    @endif
+
+
 
                 @empty
 

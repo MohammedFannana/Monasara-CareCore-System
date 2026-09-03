@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use App\Enums\OrphanRole;
 
 class OrphansImport implements ToModel, WithHeadingRow
 {
@@ -88,7 +89,7 @@ class OrphansImport implements ToModel, WithHeadingRow
                     'gender' => $row['algns'],
                     'id_number' => $row['rkm_hoy_alytym'],
                     'password' =>  Hash::make($row['rkm_hoy_alytym']),
-                    'candidate' => 'candidate',
+                    'role' => OrphanRole::CANDIDATE->value,
                     'association_id' => 1,
                 ]);
             }
