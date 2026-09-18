@@ -81,7 +81,7 @@
             </div>
 
         {{-- الدولة  and عنوان الجهة المشرفة--}}
-        @foreach ($financials as $financial)
+        @foreach ($financial as $financial)
 
 
 
@@ -97,6 +97,13 @@
                 <p style=" width: 100%;margin-right:3px" class="cell font"> اسم الكافل </p>
                 <p style="width: 90%;" class="cell border">
                     {{ $financial->owner}}
+                </p>
+            </div>
+
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> رقم معرف الطلب </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $financial->order_id ?? '' }}
                 </p>
             </div>
 

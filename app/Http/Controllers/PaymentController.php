@@ -552,6 +552,7 @@ public function createSession(Request $request)
                     if ($pending->type === 'sponsorship') {
 
                         $validated = [
+                            'order_id'    => $pending->order_id,
                             'orphan_id'   => $orphan->id,
                             'sponsor_id'  => $sponsorId,
                             'duration'    => (int)$pending->duration,
@@ -574,6 +575,7 @@ public function createSession(Request $request)
 
                     } else {
                         Gift::create([
+                            'order_id'   => $pending->order_id,
                             'orphan_id'  => $orphan->id,
                             'sponsor_id' => $sponsorId,
                             'amount'     => (float)$pending->bail_amount,
@@ -608,8 +610,7 @@ public function createSession(Request $request)
                         المتبرع: <strong>{$sponsorName}</strong><br>
                         الأيتام: <strong>{$orphansList}</strong><br>
                         قيمة الهدية لليتيم الواحد: {$amount} دينار بحريني<br>
-                        عدد الأيتام: {$count}<br>
-                        المجموع الكلي: <strong>{$grandTotal}</strong> دينار بحريني
+                        عدد الأيتام: {$count}
                     ";
                 } else {
                     $message = "

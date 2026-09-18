@@ -32,7 +32,8 @@ class GenerateReportJob implements ShouldQueue
         public ?string $dateTo = null,
         public ?string $status = null,
         public string $format = 'excel',
-        public array $filters = []
+        public array $filters = [],
+        public ?int $associationId = null
     ) {
     }
 
@@ -41,18 +42,25 @@ class GenerateReportJob implements ShouldQueue
         $date = Carbon::parse($this->date);
         $dateTo = $this->dateTo ? Carbon::parse($this->dateTo) : $date;
         $folder = $date->format('m-Y');
+        $storagePrefix = $this->associationId ? 'associations/' . $this->associationId . '/' : '';
 
         switch ($this->type) {
             case 'sponsor':
                 $fileName = 'sponsor_report_' . $folder . '.' . $this->format;
-                $filePath = 'reports/sponsors/' . $fileName;
+                $filePath = 'reports/' . $storagePrefix . 'sponsors/' . $fileName;
 
                 if ($this->format === 'pdf') {
-                    $sponsors = Sponsor::query()->select(['id', 'name', 'email', 'phone', 'country', 'address'])->get();
+                    $sponsors = Sponsor::query()
+                        ->when($this->associationId, fn ($query) => $query->where(function ($query) {
+                            $query->whereHas('sponsorships.orphan', fn ($query) => $query->where('association_id', $this->associationId))
+                                ->orWhereHas('gifts.orphan', fn ($query) => $query->where('association_id', $this->associationId));
+                        }))
+                        ->select(['id', 'name', 'email', 'phone', 'country', 'address'])
+                        ->get();
                     $pdf = Pdf::loadView('admins.reports.pdf.sponsor', compact('sponsors', 'date'));
                     Storage::disk('public')->put($filePath, $pdf->output());
                 } else {
-                    Excel::store(new SponsorReportExport, $filePath, 'public');
+                    Excel::store(new SponsorReportExport($this->associationId), $filePath, 'public');
                 }
 
                 $this->createReportRecord('sponsor', $filePath, $date, $dateTo);
@@ -60,18 +68,21 @@ class GenerateReportJob implements ShouldQueue
 
             case 'sponsorship':
                 $fileName = 'sponsorship_report_' . $folder . '.' . $this->format;
-                $filePath = 'reports/sponsorships/' . $fileName;
+                $filePath = 'reports/' . $storagePrefix . 'sponsorships/' . $fileName;
 
                 if ($this->format === 'pdf') {
                     $sponsorships = Sponsorship::query()
                         ->when($this->status && $this->status !== 'all', fn ($query) => $query->where('status', $this->status))
+                        ->when($this->associationId, fn ($query) => $query->whereHas('orphan', fn ($query) => $query->where('association_id', $this->associationId)))
                         ->with(['orphan', 'sponsor'])
-                        ->select(['id', 'orphan_id', 'sponsor_id', 'status', 'sponsorship_date', 'duration', 'bail_amount', 'total'])
+                        ->select(['id', 'order_id', 'orphan_id', 'sponsor_id', 'status', 'sponsorship_date', 'duration', 'bail_amount', 'total', 'sponsorship_delivery', 'created_at'])
+                        ->orderBy('orphan_id')
+                        ->orderByDesc('created_at')
                         ->get();
                     $pdf = Pdf::loadView('admins.reports.pdf.sponsorship', compact('sponsorships', 'date'));
                     Storage::disk('public')->put($filePath, $pdf->output());
                 } else {
-                    Excel::store(new SponsorshipReportExport($this->status), $filePath, 'public');
+                    Excel::store(new SponsorshipReportExport($this->status, $this->associationId), $filePath, 'public');
                 }
 
                 $this->createReportRecord('sponsorship', $filePath, $date, $dateTo);
@@ -79,9 +90,9 @@ class GenerateReportJob implements ShouldQueue
 
             case 'orphan':
                 $fileName = 'orphan_report_' . $folder . '.' . $this->format;
-                $filePath = 'reports/orphans/' . $fileName;
+                $filePath = 'reports/' . $storagePrefix . 'orphans/' . $fileName;
 
-                $query = Orphan::query();
+                $query = Orphan::query()->when($this->associationId, fn ($query) => $query->where('association_id', $this->associationId));
                 $searchBys = $this->filters['search_by'] ?? [];
                 $conditions = $this->filters['condition'] ?? [];
                 $values = $this->filters['search_value'] ?? [];
@@ -121,14 +132,18 @@ class GenerateReportJob implements ShouldQueue
 
             case 'gift':
                 $fileName = 'gift_report_' . $folder . '.' . $this->format;
-                $filePath = 'reports/gifts/' . $fileName;
+                $filePath = 'reports/' . $storagePrefix . 'gifts/' . $fileName;
 
                 if ($this->format === 'pdf') {
-                    $gifts = Gift::query()->with(['orphan', 'sponsor'])->select(['id', 'orphan_id', 'sponsor_id', 'gift_date', 'duration', 'amount', 'total', 'notes'])->get();
+                    $gifts = Gift::query()
+                        ->when($this->associationId, fn ($query) => $query->whereHas('orphan', fn ($query) => $query->where('association_id', $this->associationId)))
+                        ->with(['orphan', 'sponsor'])
+                        ->select(['id', 'order_id', 'orphan_id', 'sponsor_id', 'gift_date', 'duration', 'amount', 'total', 'notes'])
+                        ->get();
                     $pdf = Pdf::loadView('admins.reports.pdf.gift', compact('gifts', 'date'));
                     Storage::disk('public')->put($filePath, $pdf->output());
                 } else {
-                    Excel::store(new GiftReportExport($this->status), $filePath, 'public');
+                    Excel::store(new GiftReportExport($this->status, $this->associationId), $filePath, 'public');
                 }
 
                 $this->createReportRecord('gift', $filePath, $date, $dateTo);
@@ -136,11 +151,16 @@ class GenerateReportJob implements ShouldQueue
 
             case 'financial':
                 $fileName = 'financial_report_' . $folder . '.' . $this->format;
-                $filePath = 'reports/financials/' . $fileName;
+                $filePath = 'reports/' . $storagePrefix . 'financials/' . $fileName;
 
                 if ($this->format === 'pdf') {
-                    $gifts = Gift::query()->with(['orphan', 'sponsor'])->get()->map(function ($gift) {
+                    $gifts = Gift::query()
+                        ->when($this->associationId, fn ($query) => $query->whereHas('orphan', fn ($query) => $query->where('association_id', $this->associationId)))
+                        ->with(['orphan', 'sponsor'])
+                        ->get()
+                        ->map(function ($gift) {
                         return [
+                            'order_id' => $gift->order_id,
                             'date' => $gift->gift_date,
                             'owner' => $gift->sponsor?->name,
                             'orphan' => $gift->orphan?->name,
@@ -155,9 +175,11 @@ class GenerateReportJob implements ShouldQueue
                         ->with(['orphan', 'sponsor'])
                         ->whereNull('payment_received')
                         ->whereNotNull('bail_amount')
+                        ->when($this->associationId, fn ($query) => $query->whereHas('orphan', fn ($query) => $query->where('association_id', $this->associationId)))
                         ->get()
                         ->map(function ($sponsorship) {
                             return [
+                                'order_id' => $sponsorship->order_id,
                                 'date' => $sponsorship->created_at,
                                 'owner' => $sponsorship->sponsor?->name,
                                 'orphan' => $sponsorship->orphan?->name,
@@ -172,7 +194,7 @@ class GenerateReportJob implements ShouldQueue
                     $pdf = Pdf::loadView('admins.reports.pdf.financial', compact('financial', 'date', 'dateTo'));
                     Storage::disk('public')->put($filePath, $pdf->output());
                 } else {
-                    Excel::store(new FinancialReportExport($this->status), $filePath, 'public');
+                    Excel::store(new FinancialReportExport($this->status, $this->associationId), $filePath, 'public');
                 }
 
                 $this->createReportRecord('financial', $filePath, $date, $dateTo);
@@ -187,6 +209,7 @@ class GenerateReportJob implements ShouldQueue
             'report' => $filePath,
             'date' => $date->startOfMonth(),
             'date_to' => $dateTo->startOfMonth(),
+            'association_id' => $this->associationId,
         ]);
     }
 }

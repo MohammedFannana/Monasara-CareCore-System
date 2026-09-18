@@ -41,6 +41,8 @@ class AssociationController extends Controller
         $validated = $request->validated();
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['role'] = 'association';
+        $validated['parent_association_id'] = null;
         Association::create($validated);
         return redirect()->route('admin.association.index')->with('success' , 'تم إضافة الجمعية بنجاح');
     }

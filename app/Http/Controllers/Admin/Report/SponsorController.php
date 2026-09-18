@@ -30,12 +30,13 @@ class SponsorController extends Controller
     public function index(Request $request){
 
         $reports = Report::where('type' , 'sponsor')
+        ->when($this->associationReportId(), fn ($query, $associationId) => $query->where('association_id', $associationId))
         ->when($request->filled('search'), function ($query) use ($request) {
             $date = Carbon::parse($request->search);
 
             $query->whereYear('date', $date->year)
                 ->whereMonth('date', $date->month);
-        })->paginate(10);
+        })->latest('created_at')->paginate(10);
         return view('admins.reports.sponsor' , compact('reports'));
 
     }
@@ -43,12 +44,13 @@ class SponsorController extends Controller
     public function indexSponsorship(Request $request){
 
         $reports = Report::where('type' , 'sponsorship')
+        ->when($this->associationReportId(), fn ($query, $associationId) => $query->where('association_id', $associationId))
         ->when($request->filled('search'), function ($query) use ($request) {
             $date = Carbon::parse($request->search);
 
             $query->whereYear('date', $date->year)
                 ->whereMonth('date', $date->month);
-        })->paginate(10);
+        })->latest('created_at')->paginate(10);
         return view('admins.reports.sponsorship' , compact('reports'));
 
     }
@@ -57,12 +59,13 @@ class SponsorController extends Controller
 
         $assoc  = Association::get(['id' , 'name']);
         $reports = Report::where('type' , 'orphan')
+        ->when($this->associationReportId(), fn ($query, $associationId) => $query->where('association_id', $associationId))
         ->when($request->filled('search'), function ($query) use ($request) {
             $date = Carbon::parse($request->search);
 
             $query->whereYear('date', $date->year)
                 ->whereMonth('date', $date->month);
-        })->paginate(10);
+        })->latest('created_at')->paginate(10);
         return view('admins.reports.orphan' , compact('reports' , 'assoc'));
 
     }
@@ -71,12 +74,13 @@ class SponsorController extends Controller
     public function indexGift(Request $request){
 
         $reports = Report::where('type' , 'gift')
+        ->when($this->associationReportId(), fn ($query, $associationId) => $query->where('association_id', $associationId))
         ->when($request->filled('search'), function ($query) use ($request) {
             $date = Carbon::parse($request->search);
 
             $query->whereYear('date', $date->year)
                 ->whereMonth('date', $date->month);
-        })->paginate(10);
+        })->latest('created_at')->paginate(10);
         return view('admins.reports.gift' , compact('reports'));
 
     }
@@ -84,17 +88,20 @@ class SponsorController extends Controller
 
     public function financial(Request $request){
         $reports = Report::where('type' , 'financial')
+        ->when($this->associationReportId(), fn ($query, $associationId) => $query->where('association_id', $associationId))
         ->when($request->filled('search'), function ($query) use ($request) {
             $date = Carbon::parse($request->search);
 
             $query->whereYear('date', $date->year)
                 ->whereMonth('date', $date->month);
-        })->paginate(10);
+        })->latest('created_at')->paginate(10);
         return view('admins.reports.financial' , compact('reports'));
     }
 
     // **
     public function ExcelReport(Request $request){
+        $this->validateReportType($request->type);
+
         GenerateReportJob::dispatch(
             $request->type,
             $request->date,
@@ -105,7 +112,8 @@ class SponsorController extends Controller
                 'search_by' => $request->input('search_by', []),
                 'condition' => $request->input('condition', []),
                 'search_value' => $request->input('search_value', []),
-            ]
+            ],
+            $this->associationReportId()
         );
 
         return redirect()->back()->with('success', 'تم بدء إنشاء التقرير في الخلفية، وسيتم تفعيله خلال دقائق قليلة.');
@@ -113,6 +121,8 @@ class SponsorController extends Controller
 
     // **
     public function PdfReport(Request $request){
+        $this->validateReportType($request->type);
+
         GenerateReportJob::dispatch(
             $request->type,
             $request->date,
@@ -123,7 +133,8 @@ class SponsorController extends Controller
                 'search_by' => $request->input('search_by', []),
                 'condition' => $request->input('condition', []),
                 'search_value' => $request->input('search_value', []),
-            ]
+            ],
+            $this->associationReportId()
         );
 
         return redirect()->back()->with('success', 'تم بدء إنشاء التقرير في الخلفية، وسيتم تفعيله خلال دقائق قليلة.');
@@ -131,7 +142,7 @@ class SponsorController extends Controller
 
     public function download(string $id){
 
-        $report = Report::findOrFail($id);
+        $report = $this->reportQuery()->findOrFail($id);
 
         $dateFormatted = Carbon::parse($report->date)->format('m-Y');
         $extension = pathinfo($report->report, PATHINFO_EXTENSION);
@@ -146,7 +157,7 @@ class SponsorController extends Controller
     }
 
     public function destroy(string $id){
-        $report = Report::findOrFail($id);
+        $report = $this->reportQuery()->findOrFail($id);
 
         $report->delete();
 
@@ -157,5 +168,28 @@ class SponsorController extends Controller
         return redirect()->back()->with('success', 'تم حذف التقرير بنجاح');
 
 
+    }
+
+    protected function reportQuery()
+    {
+        return Report::query()
+            ->when($this->associationReportId(), fn ($query, $associationId) => $query->where('association_id', $associationId))
+            ->when(auth('association')->check() && auth('association')->user()->role === 'association', fn ($query) => $query->where('type', 'orphan'));
+    }
+
+    protected function associationReportId(): ?int
+    {
+        if (!auth('association')->check()) {
+            return null;
+        }
+
+        return auth('association')->user()->getReportAssociationId();
+    }
+
+    protected function validateReportType(string $type): void
+    {
+        if (auth('association')->check() && auth('association')->user()->role === 'association' && $type !== 'orphan') {
+            abort(403);
+        }
     }
 }

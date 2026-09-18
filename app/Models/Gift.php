@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Gift extends Model
 {
     protected $fillable = [
+        'order_id',
         'orphan_id',
         'sponsor_id',
         'gift_date',

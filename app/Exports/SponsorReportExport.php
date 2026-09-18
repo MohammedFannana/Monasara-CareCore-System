@@ -10,9 +10,18 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 class SponsorReportExport implements FromCollection, WithHeadings
 {
 
+    public function __construct(protected ?int $associationId = null)
+    {
+    }
+
     public function collection()
     {
-        return Sponsor::select('name' , 'email' , 'phone' ,'country' ,'address')->get();
+        return Sponsor::when($this->associationId, function ($query) {
+            $query->where(function ($query) {
+                $query->whereHas('sponsorships.orphan', fn ($query) => $query->where('association_id', $this->associationId))
+                    ->orWhereHas('gifts.orphan', fn ($query) => $query->where('association_id', $this->associationId));
+            });
+        })->select('name' , 'email' , 'phone' ,'country' ,'address')->get();
     }
 
     public function headings(): array

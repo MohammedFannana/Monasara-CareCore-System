@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sponsorship extends Model
 {
     protected $fillable = [
-        'orphan_id' , 'sponsor_id' ,'sponsorship_date' , 'duration' , 'status','bail_amount','total','payment_received' , 'currency'
+        'order_id', 'orphan_id' , 'sponsor_id' ,'sponsorship_date' , 'duration' , 'status','bail_amount','total','payment_received' , 'currency', 'sponsorship_delivery'
     ];
 
     public function orphan(){

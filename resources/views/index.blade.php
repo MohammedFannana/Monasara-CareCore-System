@@ -74,8 +74,8 @@
             </button>
 
             <div class="navbar-brand">
-                <img src="{{asset('images/logo.png')}}" alt="">
-                <img src="{{asset('images/logo2.png')}}" alt="">
+                <img src="{{asset('images/logo.png')}}" alt="" loading="eager">
+                <img src="{{asset('images/logo2.png')}}" alt="" loading="eager">
             </div>
 
             <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
@@ -131,7 +131,7 @@
                         <div class="tag tag-2">جمعيات معتمدة</div>
                         <div class="tag tag-3">نعم كفيل أمل</div>
                         <div class="tag tag-4">عبادة لا توقف</div> --}}
-                        <img src="{{asset('images/header.png')}}" alt="" width="100%">
+                        <img src="{{asset('images/header.png')}}" alt="" width="100%" loading="eager">
                     {{-- </div> --}}
                 </div>
 
@@ -229,7 +229,7 @@
                             <div class="d-flex justify-content-center gap-3">
                                 @foreach ($chunk as $ad)
                                     <div style="width: 100%;">
-                                        <img src="{{ asset('storage/' . $ad->ad) }}" class="d-block w-100 rounded shadow-sm" alt="إعلان">
+                                        <img src="{{ asset('storage/' . $ad->ad) }}" class="d-block w-100 rounded shadow-sm" alt="إعلان" loading="lazy" decoding="async">
                                     </div>
                                 @endforeach
                             </div>

@@ -12,22 +12,27 @@ class SponsorshipReportExport implements FromCollection, WithHeadings
 
     protected $status;
 
-    public function __construct($status)
+    public function __construct($status, protected ?int $associationId = null)
     {
         $this->status = $status;
     }
 
     public function collection()
     {
-        return Sponsorship::when($this->status && $this->status !== 'all', function ($query) {
+        return Sponsorship::with(['orphan.profile', 'sponsor'])
+        ->when($this->status && $this->status !== 'all', function ($query) {
 
                 $query->where('status', $this->status);
         })
-        ->select('orphan_id' , 'sponsor_id' , 'sponsorship_date' ,'duration' ,'bail_amount' , 'total' ,'status' , 'created_at')
+        ->when($this->associationId, fn ($query) => $query->whereHas('orphan', fn ($query) => $query->where('association_id', $this->associationId)))
+        ->select('order_id', 'orphan_id' , 'sponsor_id' , 'sponsorship_date' ,'duration' ,'bail_amount' , 'total' ,'status' , 'sponsorship_delivery', 'created_at')
+        ->orderBy('orphan_id')
+        ->orderByDesc('created_at')
         ->get()
         ->map(function ($item) {
             return [
 
+                'order_id' => $item->order_id,
                 'orphan'  => $item->orphan ? $item->orphan->name : ' ',
                 'orphan_id_number' => $item->orphan ? $item->orphan->id_number : ' ',
                 'orphan_city' => $item->orphan ? $item->orphan->city : ' ',
@@ -47,6 +52,7 @@ class SponsorshipReportExport implements FromCollection, WithHeadings
                 'bail_amount'   => $item->bail_amount,
                 'total' => $item->total,
                 'status' => $item->status,
+                'sponsorship_delivery' => $item->sponsorship_delivery,
 
             ];
         });
@@ -56,6 +62,7 @@ class SponsorshipReportExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'رقم معرف الطلب',
                 'اسم اليتيم',
                 'رقم هوية اليتيم',
                 'مدينة اليتيم',
@@ -68,7 +75,8 @@ class SponsorshipReportExport implements FromCollection, WithHeadings
                 'مدة الكفالة',
                 'مبلغ الكفالة الشهري',
                 'المبلغ الاجمالي',
-                'حالة الكفالة'
+                'حالة الكفالة',
+                'تسليم الكفالة'
             ];
         }
 }

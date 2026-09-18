@@ -17,7 +17,7 @@ class Sponsor extends Authenticatable
     ];
 
     public function sponsorships(){
-        $this->hasMany(Sponsorship::class);
+        return $this->hasMany(Sponsorship::class);
     }
 
     public function gifts()

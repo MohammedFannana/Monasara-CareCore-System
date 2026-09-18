@@ -122,12 +122,28 @@
                 </p>
             </div>
 
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> رقم معرف الطلب </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $sponsorship->order_id ?? '' }}
+                </p>
+            </div>
+
 
             @if($sponsorship->sponsorship_date)
                 <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
                     <p style=" width: 100%;margin-right:3px" class="cell font"> تاريخ الكفالة </p>
                     <p style="width: 90%;" class="cell border">
                         {{ $sponsorship->sponsorship_date}}
+                    </p>
+                </div>
+            @endif
+
+            @if($sponsorship->created_at)
+                <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                    <p style=" width: 100%;margin-right:3px" class="cell font"> تاريخ دفع الكفالة </p>
+                    <p style="width: 90%;" class="cell border">
+                        {{ $sponsorship->created_at->format('Y-m-d H:i') }}
                     </p>
                 </div>
             @endif
@@ -173,6 +189,13 @@
                     </p>
                 </div>
             @endif
+
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> تسليم الكفالة </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $sponsorship->sponsorship_delivery }}
+                </p>
+            </div>
 
             <div style="clear: both;margin-bottom:100px"></div>
 

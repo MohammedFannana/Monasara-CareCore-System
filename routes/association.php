@@ -5,6 +5,7 @@ use App\Http\Controllers\Association\ExpenseController;
 use App\Http\Controllers\Association\OrphanController as AssociationOrphanController;
 use App\Http\Controllers\Association\ResearcherController;
 use App\Http\Controllers\Association\ReviewController;
+use App\Http\Controllers\Association\SponsorshipDeliveryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrphanController;
@@ -31,6 +32,10 @@ Route::middleware('auth:association')->prefix('association')->name('association.
 
     Route::get('/expenses/active', [ExpenseController::class, 'makeActive'])->name('expenses.active');
     Route::resource('/expenses', ExpenseController::class);
+
+    Route::get('/sponsorship-delivery', [SponsorshipDeliveryController::class, 'create'])->name('sponsorship-delivery.create');
+    Route::post('/sponsorship-delivery', [SponsorshipDeliveryController::class, 'store'])->name('sponsorship-delivery.store');
+    Route::post('/sponsorship-delivery/mark-as-delivered', [SponsorshipDeliveryController::class, 'markAsDelivered'])->name('sponsorship-delivery.mark-as-delivered');
 
     Route::get('/message', [MessageController::class, 'message'])->name('message.index');
     Route::post('/message/store/{id}', [MessageController::class, 'activeMessage'])->name('message.store');

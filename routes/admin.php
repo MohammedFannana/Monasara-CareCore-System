@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\OrphanController as AdminOrphanController;
 use App\Http\Controllers\Admin\Report\SponsorController as ReportSponsorController;
 use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\SponsorEmailController;
+use App\Http\Controllers\Admin\SponsorshipDeliveryController;
 use App\Http\Controllers\Front\QuestionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Sponsor\MessageController as SponsorMessageController;
@@ -31,20 +32,23 @@ Route::middleware('auth:web')->prefix('admin')->name('admin.')->group(function (
 
         Route::get('/sponsors/email', [SponsorEmailController::class, 'index'])->name('sponsors.email');
         Route::post('/sponsors/email/send', [SponsorEmailController::class, 'send'])->name('sponsors.email.send');
+        Route::get('/sponsorship-delivery', [SponsorshipDeliveryController::class, 'index'])->name('sponsorship-delivery.index');
     });
 });
 
 Route::middleware('auth:web,association')->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('can:view-reports')->prefix('report')->name('report.')->group(function () {
-        Route::get('sponsor', [ReportSponsorController::class, 'index'])->name('sponsor');
-        Route::get('sponsorship', [ReportSponsorController::class, 'indexSponsorship'])->name('sponsorship');
         Route::get('orphan', [ReportSponsorController::class, 'indexOrphan'])->name('orphan');
-        Route::get('gift', [ReportSponsorController::class, 'indexGift'])->name('gift');
-        Route::get('financial', [ReportSponsorController::class, 'financial'])->name('financial');
-
         Route::post('excel', [ReportSponsorController::class, 'ExcelReport'])->name('excel');
         Route::post('pdf', [ReportSponsorController::class, 'PdfReport'])->name('pdf');
         Route::get('download/{id}', [ReportSponsorController::class, 'download'])->name('download');
         Route::delete('destroy/{id}', [ReportSponsorController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::middleware('can:view-all-reports')->prefix('report')->name('report.')->group(function () {
+        Route::get('sponsor', [ReportSponsorController::class, 'index'])->name('sponsor');
+        Route::get('sponsorship', [ReportSponsorController::class, 'indexSponsorship'])->name('sponsorship');
+        Route::get('gift', [ReportSponsorController::class, 'indexGift'])->name('gift');
+        Route::get('financial', [ReportSponsorController::class, 'financial'])->name('financial');
     });
 });

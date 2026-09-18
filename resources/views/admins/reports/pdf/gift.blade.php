@@ -100,6 +100,13 @@
                 </p>
             </div>
 
+            <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">
+                <p style=" width: 100%;margin-right:3px" class="cell font"> رقم معرف الطلب </p>
+                <p style="width: 90%;" class="cell border">
+                    {{ $gift->order_id ?? '' }}
+                </p>
+            </div>
+
 
             @if($gift->gift_date)
                 <div style="width: 50%; float:right; overflow: hidden; margin-bottom: 12px;">

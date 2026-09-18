@@ -11,6 +11,7 @@ use App\Models\Question;
 use App\Models\Sponsorship;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Notifications\ContactMailMessageNotification;
 // use Symfony\Component\Mime\Part\Text\HtmlPart;
@@ -19,13 +20,32 @@ use App\Notifications\ContactMailMessageNotification;
 class FrontController extends Controller
 {
     public function index(){
-        $questions = Question::get()->take(5);
-        $ads = Ad::all();
-        $orphansCount = Orphan::count();
-        $orphanSponsorCount = Orphan::sponsored()->count();
-        $sponsorsCount = Sponsor::count();
-        $sponsorshipsCount = Sponsorship::count();
-        return view('index' , compact(['questions' , 'ads','orphansCount' ,'sponsorsCount' ,'sponsorshipsCount' , 'orphanSponsorCount']));
+        $questions = Cache::remember('landing.questions', now()->addMinutes(5), function () {
+            return Question::query()
+                ->select(['id', 'question', 'answer'])
+                ->limit(5)
+                ->get();
+        });
+
+        $ads = Cache::remember('landing.ads', now()->addMinutes(5), function () {
+            return Ad::query()
+                ->select(['id', 'ad'])
+                ->get();
+        });
+
+        $statistics = Cache::remember('landing.statistics', now()->addMinutes(5), function () {
+            return [
+                'orphansCount' => Orphan::count(),
+                'orphanSponsorCount' => Orphan::sponsored()->count(),
+                'sponsorsCount' => Sponsor::count(),
+                'sponsorshipsCount' => Sponsorship::count(),
+            ];
+        });
+
+        return view('index', array_merge(
+            compact('questions', 'ads'),
+            $statistics
+        ));
     }
 
     public function showOrphanToSponsored(){

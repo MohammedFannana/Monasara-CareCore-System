@@ -91,7 +91,16 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('view-reports', function ($user) {
-            return $user->role === 'accountant' || $user->role === 'admin' || $user->role === 'association';
+            return $user->role === 'accountant'
+                || $user->role === 'admin'
+                || $user->role === 'association'
+                || $user->role === 'association_staff';
+        });
+
+        Gate::define('view-all-reports', function ($user) {
+            return $user->role === 'accountant'
+                || $user->role === 'admin'
+                || $user->role === 'association_staff';
         });
 
         Gate::define('show-admin', function ($user) {

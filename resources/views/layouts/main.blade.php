@@ -362,6 +362,13 @@
                                         </a>
                                     </li>
 
+                                    <li class="nav-item rounded {{Route::is('association.sponsorship-delivery.*')?'li-active':''}}">
+                                        <a href="{{route('association.sponsorship-delivery.create')}}" class="nav-link d-flex gap-2 {{Route::is('association.sponsorship-delivery.*')?'link-active':''}}">
+                                            <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                            <p> تسليم الكفالات </p>
+                                        </a>
+                                    </li>
+
 
 
                                     <li class="nav-item rounded">
@@ -377,12 +384,14 @@
                                         <ul class="nav nav-treeview">
 
 
-                                            <li class="nav-item rounded">
-                                                <a href="{{route('admin.report.sponsorship')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsorship')?'link-active':''}}">
-                                                    <img src="{{asset('images/sidebar/certified.png')}}" alt="">
-                                                    تقارير الكفالات
-                                                </a>
-                                            </li>
+                                            @can('view-all-reports')
+                                                <li class="nav-item rounded">
+                                                    <a href="{{route('admin.report.sponsorship')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsorship')?'link-active':''}}">
+                                                        <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                        تقارير الكفالات
+                                                    </a>
+                                                </li>
+                                            @endcan
 
                                             <li class="nav-item rounded">
                                                 <a href="{{route('admin.report.orphan')}}" class="nav-link ms-2 {{Route::is('admin.report.orphan')?'link-active':''}}">
@@ -391,12 +400,14 @@
                                                 </a>
                                             </li>
 
-                                            <li class="nav-item rounded">
-                                                <a href="{{route('admin.report.gift')}}" class="nav-link ms-2 {{Route::is('admin.report.gift')?'link-active':''}}">
-                                                    <img src="{{asset('images/sidebar/certified.png')}}" alt="">
-                                                    تقارير الهدايا
-                                                </a>
-                                            </li>
+                                            @can('view-all-reports')
+                                                <li class="nav-item rounded">
+                                                    <a href="{{route('admin.report.gift')}}" class="nav-link ms-2 {{Route::is('admin.report.gift')?'link-active':''}}">
+                                                        <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                        تقارير الهدايا
+                                                    </a>
+                                                </li>
+                                            @endcan
 
                                         </ul>
                                     </li>
@@ -582,19 +593,23 @@
                                 </a>
                                 <ul class="nav nav-treeview">
 
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('admin.report.sponsor')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsor')?'link-active':''}}">
-                                        <img src="{{asset('images/sidebar/people.png')}}" alt="">
-                                            تقارير الكفلاء
-                                        </a>
-                                    </li>
+                                    @can('view-all-reports')
+                                        <li class="nav-item rounded">
+                                            <a href="{{route('admin.report.sponsor')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsor')?'link-active':''}}">
+                                            <img src="{{asset('images/sidebar/people.png')}}" alt="">
+                                                تقارير الكفلاء
+                                            </a>
+                                        </li>
+                                    @endcan
 
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('admin.report.sponsorship')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsorship')?'link-active':''}}">
-                                            <img src="{{asset('images/sidebar/certified.png')}}" alt="">
-                                            تقارير الكفالات
-                                        </a>
-                                    </li>
+                                    @can('view-all-reports')
+                                        <li class="nav-item rounded">
+                                            <a href="{{route('admin.report.sponsorship')}}" class="nav-link ms-2 {{Route::is('admin.report.sponsorship')?'link-active':''}}">
+                                                <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                تقارير الكفالات
+                                            </a>
+                                        </li>
+                                    @endcan
 
                                     <li class="nav-item rounded">
                                         <a href="{{route('admin.report.orphan')}}" class="nav-link ms-2 {{Route::is('admin.report.orphan')?'link-active':''}}">
@@ -603,19 +618,32 @@
                                         </a>
                                     </li>
 
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('admin.report.gift')}}" class="nav-link ms-2 {{Route::is('admin.report.gift')?'link-active':''}}">
-                                            <img src="{{asset('images/sidebar/certified.png')}}" alt="">
-                                            تقارير الهدايا
-                                        </a>
-                                    </li>
+                                    @can('view-all-reports')
+                                        <li class="nav-item rounded">
+                                            <a href="{{route('admin.report.gift')}}" class="nav-link ms-2 {{Route::is('admin.report.gift')?'link-active':''}}">
+                                                <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                تقارير الهدايا
+                                            </a>
+                                        </li>
+                                    @endcan
 
-                                    <li class="nav-item rounded">
-                                        <a href="{{route('admin.report.financial')}}" class="nav-link ms-2 {{Route::is('admin.report.financial')?'link-active':''}}">
-                                            <img src="{{asset('images/sidebar/certified.png')}}" alt="">
-                                            التقارير المالية
-                                        </a>
-                                    </li>
+                                    @can('view-all-reports')
+                                        <li class="nav-item rounded">
+                                            <a href="{{route('admin.report.financial')}}" class="nav-link ms-2 {{Route::is('admin.report.financial')?'link-active':''}}">
+                                                <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                التقارير المالية
+                                            </a>
+                                        </li>
+                                    @endcan
+
+                                    @can('show-admin')
+                                        <li class="nav-item rounded">
+                                            <a href="{{route('admin.sponsorship-delivery.index')}}" class="nav-link ms-2 {{Route::is('admin.sponsorship-delivery.index')?'link-active':''}}">
+                                                <img src="{{asset('images/sidebar/certified.png')}}" alt="">
+                                                عرض تسليم الكفالات
+                                            </a>
+                                        </li>
+                                    @endcan
 
                                 </ul>
                             </li>
@@ -778,3 +806,4 @@
     @stack('scripts')
 </body>
 </html>
+

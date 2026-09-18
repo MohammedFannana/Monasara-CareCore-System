@@ -23,12 +23,21 @@ class Association extends  Authenticatable
         'phone',
         'phone1',
         'phone2',
-        'password'
+        'password',
+        'role',
+        'parent_association_id'
     ];
 
     protected $hidden = [
         'password',
     ];
+
+    public function getReportAssociationId(): int
+    {
+        return $this->role === 'association_staff'
+            ? (int) $this->parent_association_id
+            : (int) $this->id;
+    }
 
     // one to many
     public function researchers()
