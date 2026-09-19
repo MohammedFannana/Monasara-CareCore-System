@@ -13,7 +13,7 @@
     </p>
 
     @error('guard')
-        <div class="alert alert-danger">
+        <div class="alert alert-warning text-center" id="guard-error">
             {{ $message }}
         </div>
     @enderror
